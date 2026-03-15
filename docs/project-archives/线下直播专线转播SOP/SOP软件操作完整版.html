@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>线下混合会议 OBS 软件操作 SOP</title>
+<style>
+@page { size: A4 landscape; margin: 14mm 16mm 14mm 16mm; }
+* { box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #1a1a1a;
+  background: white;
+}
+h1 { font-size: 17pt; margin: 0 0 8px; color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 4px; }
+h2 { font-size: 12.5pt; margin: 16px 0 5px; color: #283593; border-left: 4px solid #3f51b5; padding-left: 8px; }
+h3 { font-size: 11pt; margin: 10px 0 3px; color: #37474f; }
+h4 { font-size: 10pt; margin: 6px 0 2px; color: #546e7a; }
+p { margin: 3px 0 5px; }
+ul, ol { margin: 3px 0 6px; padding-left: 20px; }
+li { margin: 2px 0; }
+code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 8.5pt;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  padding: 1px 3px;
+  color: #c62828;
+}
+pre {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 7px 9px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 7.5pt;
+  line-height: 1.4;
+  margin: 6px 0;
+  page-break-inside: avoid;
+  font-family: Consolas, "Courier New", monospace;
+}
+pre code { background:none; border:none; padding:0; color:#1a1a1a; font-size:7.5pt; }
+blockquote {
+  border-left: 4px solid #90caf9;
+  background: #e3f2fd;
+  margin: 6px 0;
+  padding: 5px 10px;
+  border-radius: 0 3px 3px 0;
+  color: #1565c0;
+}
+blockquote p { margin: 1px 0; }
+table { width:100%; border-collapse:collapse; margin:6px 0; font-size:9pt; page-break-inside:avoid; }
+th { background:#3f51b5; color:white; padding:4px 7px; text-align:left; font-weight:bold; }
+td { padding:3px 7px; border:1px solid #c5cae9; }
+tr:nth-child(even) td { background:#f3f4fb; }
+hr { border:none; border-top:1px solid #bdbdbd; margin:12px 0; }
+strong { color:#1a237e; }
+</style>
+</head>
+<body>
+<h1>线下混合会议 · 软件操作超级完整指南</h1>
+<h2>OBS 导播台 × 调音台防回音 × 微信直播助手推流</h2>
+<blockquote>
+<p><strong>核心策略（最终定稿版）：</strong></p>
+<p>- OBS → 负责<strong>画面排版</strong> + <strong>多场景导播切换</strong> + <strong>本地 MKV 录像</strong></p>
+<p>- 微信直播助手 → 负责<strong>推流到直播间</strong> + <strong>声音同步（助手自带声音偏移）</strong></p>
+<p>- <strong>不再需要 VB-Audio Virtual Cable 虚拟音频线插件！</strong></p>
+</blockquote>
+<hr>
+<h2>📡 整体信号流向图</h2>
+<pre><code>
+【现场话筒 × N】
+      │ XLR卡农线
+      ▼
+┌─────────────────────────────────────────────────┐
+│                   调  音  台                      │
+│  CH1 CH2 CH3 ... │7/8通道(电脑B下行)             │
+│  ──────────────────────────────────────────────  │
+│  MAIN OUT ──────────────────────► 现场大音箱      │
+│  AUX OUT 1 ──(3-5m 大光头线)───► 电脑B 声卡红孔  │
+│  REC OUT ───(3m  莲花线)───────► Zoom H6 Line IN │
+└─────────────────────────────────────────────────┘
+                                         │
+                               Zoom H6 Line OUT
+                                (&lt;1m 短对录线)
+                                         │
+                                         ▼
+                              电脑A USB声卡 红孔
+                                         │
+                              ┌──────────────────────┐
+                              │   OBS（电脑A）         │
+                              │  · 画面排版/场景切换   │
+                              │  · 混音器唯一音轨      │
+                              │  · 本地MKV录像        │
+                              └────────┬─────┬────────┘
+                                       │     │
+                             虚拟摄像机 │     │ USB声卡直通
+                                       ▼     ▼
+                              ┌──────────────────────┐
+                              │   微信直播助手         │
+                              │  · OBS Virtual Camera │
+                              │  · 声音偏移设定        │
+                              └──────────┬───────────┘
+                                         │
+                                         ▼
+                              视频号直播间 → 观众
+
+【远程北京端 双向声音路由】
+  腾讯会议音频 → 电脑B声卡绿孔 → 调音台LINE IN → 现场音箱
+  现场话筒 → 调音台AUX OUT 1 → 电脑B声卡红孔 → 腾讯会议
+  （AUX OUT 1不含电脑B自身信号，防止回音！）
+</code></pre>
+<hr>
+<h2>📦 第零步：到场前的器材自查清单</h2>
+<table><tbody>
+<tr><th>类型</th><th>器材</th><th>接口说明</th><th>数量</th></tr>
+<tr><td>视频</td><td>采集卡</td><td>HDMI IN ← 相机/电脑；USB → 电脑A</td><td>× 2</td></tr>
+<tr><td>视频</td><td>HDMI 一分二分配器（带电源）</td><td>1进2出</td><td>× 1</td></tr>
+<tr><td>视频</td><td>HDMI线（1-1.5米软线）</td><td>桌面短距互连</td><td>× 2</td></tr>
+<tr><td>视频</td><td>HDMI线（3-5米）</td><td>相机到导播台</td><td>× 1</td></tr>
+<tr><td>视频</td><td>HDMI光纤线（按需，10-20米）</td><td>分配器到大屏/投影</td><td>× 1</td></tr>
+<tr><td>音频</td><td><strong>Zoom H6 录音机</strong></td><td>Line IN（顶部）；Line OUT（侧面）</td><td>× 1</td></tr>
+<tr><td>音频</td><td><strong>USB 外置声卡</strong></td><td>绿孔=耳机/音箱输出；<strong>红孔=麦克风输入</strong></td><td>× 2</td></tr>
+<tr><td>音频</td><td>音频隔离器（隔离牛）</td><td>3.5mm 母口到公口</td><td>× 2</td></tr>
+<tr><td>音频</td><td>莲花线（RCA转3.5mm，3米）</td><td>调音台 REC OUT → Zoom H6 Line IN</td><td>× 1</td></tr>
+<tr><td>音频</td><td>短对录线（3.5mm转3.5mm，<1米）</td><td>Zoom H6 Line OUT → USB声卡红孔</td><td>× 1</td></tr>
+<tr><td>音频</td><td>一分二大光头线（3.5转双6.35，3-5米）</td><td>电脑B绿孔 → 调音台 LINE IN</td><td>× 1</td></tr>
+<tr><td>音频</td><td>单6.35转3.5mm线（3-5米）</td><td>调音台 AUX OUT 1 → 电脑B红孔</td><td>× 1</td></tr>
+<tr><td>备用</td><td>一拖二无线麦克风接收端</td><td>—</td><td>× 1套</td></tr>
+</tbody></table>
+<hr>
+<h2>🔌 第一步：硬件接线（全部完成后再开电脑）</h2>
+<h3>1-A 视频线路布局</h3>
+<pre><code>
+【导播台桌面俯视图】
+
+  ┌─────────────────────────────────────────────────────┐
+  │  (桌面左侧)                         (桌面右侧)       │
+  │  ┌──────────┐  1.5m   ┌──────────┐               │
+  │  │ 电脑 B   │─HDMI───►│ 分配器   │─OUT1─►(长线→投影)│
+  │  │ (客户机) │         │ 1分2出   │               │
+  │  └──────────┘         └──────┬───┘               │
+  │                              │OUT2 1.5m           │
+  │                              ▼                     │
+  │  ┌──────────┐         ┌──────────┐               │
+  │  │ 电脑 A   │◄USB─────│ 采集卡②  │◄HDMI          │
+  │  │ (推流机) │         └──────────┘               │
+  │  │          │◄USB─────┌──────────┐◄HDMI─(3-5m)──►│
+  │  └──────────┘         │ 采集卡①  │      (相机)    │
+  │     │                 └──────────┘               │
+  │  USB声卡(红孔)◄── Zoom H6 Line OUT                │
+  └─────────────────────────────────────────────────────┘
+
+  【相机长线走向】：相机机位 ──3-5m HDMI──(沿地贴胶布)──► 采集卡①
+  【大屏长线走向】：分配器OUT1 ──(现场原生/光纤线)──────► 投影/大屏
+</code></pre>
+<ol>
+<li><strong>桌面视频互连（短线）</strong></li>
+</ol>
+<ul>
+<li>电脑B HDMI输出 → <code>1.5m HDMI线</code> → 分配器 <code>IN</code></li>
+<li>分配器 <code>OUT 2</code> → <code>1.5m HDMI线</code> → 采集卡② → 插电脑A USB</li>
+</ul>
+<ol>
+<li><strong>大屏推送（长线/场地原生线）</strong></li>
+</ol>
+<ul>
+<li>分配器 <code>OUT 1</code> → <code>现场原生HDMI长线 / 自备光纤线</code> → 现场投影系统</li>
+</ul>
+<ol>
+<li><strong>相机到导播台（中长线）</strong></li>
+</ol>
+<ul>
+<li>相机 HDMI输出 → <code>3-5m HDMI线</code>（沿地绑胶布固定）→ 采集卡① → 插电脑A USB</li>
+</ul>
+<hr>
+<h3>1-B 调音台接线（音频全局）</h3>
+<pre><code>
+【调音台面板简略示意图（从左到右俯视）】
+
+ ┌──────┬──────┬──────┬─────┬──────┬──────┬──────────────────────────────┐
+ │ CH1  │ CH2  │ CH3  │ ... │ CH7  │ CH8  │        右侧接口区             │
+ │(话筒)│(话筒)│(话筒)│     │ 电脑B│ 电脑B│  ┌──────────────────────────┐│
+ │ ●    │ ●    │ ●    │     │ L    │ R    │  │ AUX OUT 1 ──(大光头线)──  ││
+ │GAIN↑ │GAIN↑ │GAIN↑ │     │LINE  │LINE  │  │        → 电脑B 声卡红孔   ││
+ │[AUX1 │[AUX1 │[AUX1 │     │[AUX1 │[AUX1 │  │ AUX OUT 2 (不用管)        ││
+ │ 12点]│ 12点]│ 12点]│     │ 最左!│ 最左!│  │ REC OUT ───(莲花线)────   ││
+ │      │      │      │     │      │      │  │        → Zoom H6 Line IN  ││
+ │      │      │      │     │      │      │  │ MAIN OUT ──────────────   ││
+ │ [推子│↕]    │      │     │ [推子│→ 0] │  │        → 现场大音箱       ││
+ └──────┴──────┴──────┴─────┴──────┴──────┘  └──────────────────────────┘│
+                                              │   MAIN MIX 推子 → 0刻度  │
+                                              └──────────────────────────┘
+
+  ★关键区分：话筒通道AUX1拧到12点(放行) / 电脑B通道AUX1拧到最左(归零掐死)
+</code></pre>
+<p><strong>进线（声音进调音台）：</strong></p>
+<ul>
+<li>话筒 → 调音台通道 1、2、3（活动前别人已插好，卡农头）</li>
+<li>电脑B USB声卡<strong>绿孔</strong> → <code>3-5m一分二大光头线</code> → 调音台 <code>LINE IN</code>（7/8通道）</li>
+</ul>
+<p><strong>出线（声音从调音台出来）：</strong></p>
+<ul>
+<li>调音台 <code>AUX OUT 1</code>（或SEND 1/MON 1） → <code>3-5m 单6.35转3.5mm线</code> → 电脑B USB声卡<strong>红孔</strong></li>
+<li>调音台 <code>REC OUT / TAPE OUT</code> → <code>3m 莲花线</code> → <strong>Zoom H6 <code>Line IN</code></strong>（顶部）</li>
+<li><strong>Zoom H6 <code>Line OUT</code></strong>（侧面） → <code><1m 短对录线</code> → 电脑A USB声卡<strong>红孔（麦克风输入）</strong></li>
+</ul>
+<blockquote>
+<p>⚠️ Zoom H6 在这里的作用是<strong>电平缓冲 + 增益保护</strong>：调音台的 REC OUT 电平较高，H6 作为中间层接收后再以合适电平输出给电脑A，防止爆音或底噪。<strong>H6 本身不作为 USB 音频设备使用。</strong></p>
+</blockquote>
+<hr>
+<h2>🎛️ 第二步：调音台旋钮操作（五个动作搞定全场）</h2>
+<blockquote>
+<p>⚠️ 关键前提：<strong>两台电脑插好 USB 声卡后，Windows 声音设置里「麦克风」和「扬声器」都要手动选中 USB Audio Device。</strong></p>
+</blockquote>
+<h3>动作 1：推主推子打开总闸</h3>
+<ul>
+<li>找右下角写着 <code>MAIN MIX</code> 或 <code>STEREO OUT</code> 的最长推子。</li>
+<li><strong>推到 <code>0</code> 刻度</strong>（有加粗横线标识），不要再动它。</li>
+</ul>
+<h3>动作 2：推电脑B通道（让北京声音进会场）</h3>
+<ul>
+<li>找插了电脑B的通道推子（一般 7/8）→ 慢慢推到 <code>0</code> 刻度。</li>
+<li>放个音频测试，会场音箱响起来 = 下行链路通了。</li>
+</ul>
+<h3>动作 3：防回音设置（★最重要★，决定北京领导会不会听到自己的回音）</h3>
+<pre><code>
+【AUX 1 旋钮操作对比图】
+
+  话筒通道 1/2/3         电脑B通道 7/8
+  ┌───────────┐          ┌───────────┐
+  │   AUX 1   │          │   AUX 1   │
+  │     ╱     │          │           │
+  │   ─┼─     │  ✅放行  │  ─┼─      │  ❌掐死
+  │     ╲  12点│  现场人声 │ ◄ 最左边  │  北京回音
+  │           │          │           │
+  └───────────┘          └───────────┘
+      拧到正中间                拧到底
+   (12点方向/正上方)         (逆时针到头)
+</code></pre>
+<ol>
+<li><strong>话筒通道（1、2、3路）的 AUX 1 旋钮</strong> → 拧到 <strong>12 点钟（正中间）</strong> ← 放行现场人声</li>
+<li><strong>电脑B 通道（7/8路）的 AUX 1 旋钮</strong> → 拧到<strong>最左边（归零）</strong> ← 彻底掐死回音</li>
+</ol>
+<blockquote>
+<p><strong>原理：</strong> AUX 1 是一条专门送给北京的声音支路。话筒的声音要进这条路（北京才能听到现场），但电脑B（北京声音）绝不能进这条路，不然北京人会听到自己的声音延迟回来，这就是回音。</p>
+</blockquote>
+<h3>动作 3 验证：北京领导入会前，确认 AUX OUT 正在运作</h3>
+<blockquote>
+<p>不要等北京领导开口说"我这边有回音"才发现问题。用下面的方法<strong>提前独立验证</strong>，全程不需要北京领导在线。</p>
+</blockquote>
+<p><strong>方法：在电脑B上看麦克风输入电平</strong></p>
+<ol>
+<li>确认线路已接好：调音台 <code>AUX OUT 1</code> → 电脑B USB声卡红孔。</li>
+<li>在<strong>电脑B</strong>上，右键任务栏右下角的小喇叭 🔊 → <strong>【声音设置】</strong>（或打开「控制面板 → 声音 → 录制」标签）。</li>
+<li>找到 <code>USB Audio Device</code>（电脑B的外置声卡），选中后可以看到一条<strong>实时输入电平条</strong>。</li>
+<li>让现场有人<strong>对着话筒说话或拍手</strong>。</li>
+<li><strong>如果电平条跟着跳动 = AUX OUT 链路通了，防回音路由正在工作！</strong></li>
+<li><strong>如果电平条纹丝不动</strong> → 检查：AUX 1 旋钮有没有拧到12点方向？AUX OUT 的物理线有没有插牢？电脑B 的默认录音设备是不是选的 USB 声卡？</li>
+</ol>
+<blockquote>
+<p>✅ <strong>这步骤一旦确认声音进来了，北京领导入会后就直接能听到现场——你不用再担心 AUX 是否生效。</strong></p>
+</blockquote>
+<h3>动作 4：REC OUT 不用调</h3>
+<ul>
+<li>绝大部分调音台 REC OUT 是固定输出，不受推子控制。</li>
+<li>会场有声 → Zoom H6 就有收到 → 电脑A 就能用。</li>
+<li>只需在 Zoom H6 上查看 <strong>输入电平指示灯</strong>，保持绿灯为主、偶尔橙色、绝不红灯。</li>
+</ul>
+<h3>动作 5：音量平衡测试</h3>
+<ul>
+<li>对话筒说话，观察通道的 <code>PEAK / CLIP</code> 指示灯。</li>
+<li><strong>绿/橙=正常；红色持续亮=太大会爆音</strong> → 把该通道最上方 <code>GAIN</code> 旋钮往左拧一点点。</li>
+</ul>
+<hr>
+<h3>🆘 调音台紧急抢救口诀</h3>
+<table><tbody>
+<tr><th>故障现象</th><th>5秒抢救动作</th></tr>
+<tr><td>刺耳啸叫"滴——"</td><td>先拉总推子到底 → 再把话筒通道推子拉下一半 → 慢慢推回</td></tr>
+<tr><td>持续"滋滋/嗡嗡"电流声</td><td>拔掉笔记本充电线，或在有杂音的接口串上音频隔离器</td></tr>
+<tr><td>电脑B放不出声/话筒没声</td><td>① 检查通道 <code>ON/MUTE</code> 键状态 ② 检查 <code>L/R</code> 路由分配按钮 ③ 检查有无开 <code>PHANTOM 48V</code>（针对电容话筒）</td></tr>
+</tbody></table>
+<hr>
+<h2>💻 第三步：OBS 软件配置</h2>
+<h3>OBS 音轨结构（先看清楚，再动手）</h3>
+<pre><code>
+【OBS 混音器面板示意图】
+
+  ┌──────────────────────────────────────────────────────┐
+  │                    混  音  器                         │
+  ├───────────────────────┬──────────────────────────────┤
+  │  桌面音频              │  全场声音_Zoom                │
+  │  (Desktop Audio)      │  (手动添加的音频输入采集)       │
+  │                       │                              │
+  │  ████████░░░░░░░      │  ░░░░███████████░░           │
+  │  ████████░░░░░░░      │  ░░░░███████████░░  ←跳动中  │
+  │  ████████░░░░░░░      │  ░░░░███████████░░           │
+  │                       │                              │
+  │  🔇  [静音按钮]        │  🔊  [正常播放]              │
+  │  ← 点这里变红/静音    │  ← 保持这条跳动绿色          │
+  │                       │                              │
+  │   ❌ 永久静音          │   ✅ 唯一保留                 │
+  └───────────────────────┴──────────────────────────────┘
+            齿轮⚙️ → 高级音频属性 → 填 Sync Offset 值
+</code></pre>
+<table><tbody>
+<tr><th>OBS 混音器通道</th><th>对应物理来源</th><th>你的操作</th></tr>
+<tr><td><code>桌面音频 (Desktop Audio)</code></td><td>电脑A 播放的一切声音（微信、浏览器、弹窗...）</td><td>❌ <strong>点喇叭图标 → 变红 → 永久静音</strong></td></tr>
+<tr><td><code>全场声音_Zoom</code>（手动添加）</td><td>USB声卡红孔 ← H6 Line OUT ← 调音台 REC OUT</td><td>✅ <strong>唯一保留，这是全场总声音</strong></td></tr>
+<tr><td>其他默认麦克风（如果出现）</td><td>电脑内置麦克风等</td><td>❌ 静音或删除</td></tr>
+</tbody></table>
+<p><strong>结论：混音器里只允许 <code>全场声音_Zoom</code> 这一条绿色跳动的音量条。</strong></p>
+<hr>
+<h3>3-A 添加唯一音频源</h3>
+<ol>
+<li>OBS <strong>【混音器】</strong> → 找到 <code>桌面音频</code> → 点喇叭 🔇 静音。</li>
+<li><strong>【来源】</strong> 面板 → <code>+</code> → <strong>【音频输入采集】</strong> → 命名 <code>全场声音_Zoom</code> → 确定。</li>
+<li>【设备】下拉 → 选择 <strong><code>USB 外置声卡</code></strong>（即 Zoom H6 Line OUT 接进来的那个，通常叫 <code>USB Audio Device</code>）。</li>
+<li>对着话筒说话 → 看到音量条跳动 = <strong>链路通了！</strong></li>
+</ol>
+<hr>
+<h3>3-B 搭建三大导播场景</h3>
+<pre><code>
+【OBS 界面左下角：场景/来源面板示意图】
+
+  ┌───────────────┐  ┌──────────────────────────────┐
+  │    场  景      │  │         来  源               │
+  ├───────────────┤  ├──────────────────────────────┤
+  │►主会场全景     │  │  现场相机  (采集卡①)           │
+  │  纯看PPT_领导  │  │  全场声音_Zoom (USB外置声卡)    │
+  │  横排画中画    │  ├──────────────────────────────┤
+  ├───────────────┤  │ + - ↑ ↓  (添加/删除/排序)     │
+  │ + - (增删场景) │  └──────────────────────────────┘
+  └───────────────┘
+                      【预览窗口：画中画效果】
+                      ┌────────────────────────────┐
+                      │  PPT/腾讯会议(满屏背景)      │
+                      │                  ┌────────┐│
+                      │                  │ 现场相机││
+                      │                  │(右下角)││
+                      │                  └────────┘│
+                      └────────────────────────────┘
+</code></pre>
+<p><strong>场景 1：<code>主会场全景</code>（现场相机画面满屏）</strong></p>
+<ol>
+<li>【场景】<code>+</code> → 命名 <code>主会场全景</code></li>
+<li>【来源】<code>+</code> → <strong>【视频采集设备】</strong> → 命名 <code>现场相机</code> → 设备选<strong>采集卡①</strong></li>
+<li>右键预览画面 → <code>变换</code> → <strong>【比例适配屏幕】</strong></li>
+</ol>
+<p><strong>场景 2：<code>纯看PPT_领导</code>（电脑B画面满屏）</strong></p>
+<ol>
+<li>【场景】<code>+</code> → 命名 <code>纯看PPT_领导</code></li>
+<li>【来源】<code>+</code> → <strong>【视频采集设备】</strong> → 命名 <code>电脑B画面</code> → 设备选<strong>采集卡②</strong></li>
+</ol>
+<p><strong>场景 3：<code>横排画中画</code>（PPT主画面 + 右下角现场小窗）</strong></p>
+<ol>
+<li>【场景】<code>+</code> → 命名 <code>横排画中画</code></li>
+<li>【来源】<code>+</code> → <strong>【视频采集设备】</strong> → <strong>【添加现有】</strong> → 选 <code>电脑B画面</code>，铺满全屏</li>
+<li>再点 <code>+</code> → <strong>【视频采集设备】</strong> → <strong>【添加现有】</strong> → 选 <code>现场相机</code></li>
+<li>预览里把现场相机拖到右下角 + 缩小（不挡 PPT 关键字）</li>
+</ol>
+<blockquote>
+<p><strong>导播切换口诀：</strong> 现场讲话 → 场景1；讲PPT → 场景2/3；领导发言 → 场景2</p>
+</blockquote>
+<hr>
+<h3>3-C 本地高清录像设置</h3>
+<blockquote>
+<p>这是交给客户的超清母带，全程必须开着。</p>
+</blockquote>
+<ol>
+<li>OBS 右下角 <strong>【设置】</strong> → <strong>【输出】</strong> → 输出模式改<strong>【高级】</strong></li>
+<li>点<strong>【录像】</strong>标签页：</li>
+</ol>
+<ul>
+<li>录像格式：<code>MKV</code>（断电不损坏）</li>
+<li>视频编码器：N卡选 <code>NVENC H.264</code>；核显选 <code>QuickSync</code>；AMD选 <code>AMF</code>；不要选 <code>x264</code></li>
+<li>码率控制：<code>CQP</code>，级别 <code>22</code>（数字越小越清晰，22是最佳平衡点）</li>
+</ul>
+<ol>
+<li>确定保存</li>
+</ol>
+<hr>
+<h2>🎙️ 第四步：测算延迟数值（只测一次，填到助手里）</h2>
+<blockquote>
+<p>采集卡渲染比声音慢约 150ms～250ms。需要让声音"等等"画面，保证直播间观众声画同步。</p>
+<p><strong>本地录像的偏移不影响直播质量，这一步测出的数字是专门给微信助手用的。</strong></p>
+</blockquote>
+<p><strong>操作流程：</strong></p>
+<ol>
+<li>让人站在相机前<strong>拍手（打板）</strong>，同时盯着 OBS 预览画面。</li>
+<li>OBS 混音器 → <code>全场声音_Zoom</code> 右边的齿轮⚙️ → <strong>【高级音频属性】</strong></li>
+<li><strong>【同步偏移 (Sync Offset)】</strong> 框 → 输入 <code>150</code>（毫秒），回车</li>
+<li>继续看拍手效果：</li>
+</ol>
+<ul>
+<li>手合上了但声音还没响 → 说明声音还在等，数值太大，<strong>改小</strong></li>
+<li>声音先响了手还没合 → 说明声音超前，数值太小，<strong>改大</strong></li>
+</ul>
+<ol>
+<li>调到 OBS 预览里<strong>声画基本对上 → 记下这个数值（例：<code>180</code>）</strong></li>
+</ol>
+<blockquote>
+<p>✅ 这个数值之后要填进微信助手，是直播间声画同步的关键！</p>
+</blockquote>
+<hr>
+<h2>📱 第五步：微信视频号直播助手配置（最终推流）</h2>
+<pre><code>
+【微信视频号直播助手 界面示意图（简略）】
+
+  ┌────────────────────────────────────────────────────────────┐
+  │  [扫码登录 / 直播间已创建]                                   │
+  ├──────────────────────────┬─────────────────────────────────┤
+  │       预  览  区           │            设  置  区            │
+  │                          │  【画面来源】                    │
+  │   ┌──────────────────┐   │   摄像头: OBS Virtual Camera ▼  │
+  │   │                  │   │                                 │
+  │   │   OBS 导播画面    │   │  【麦克风设置】                  │
+  │   │ (画中画/全景等)   │   │   设备: USB 外置声卡 ▼          │
+  │   │                  │   │   ┌────────────────────────┐   │
+  │   └──────────────────┘   │   │ 声音偏移: [  180  ] ms  │◄━━━┓
+  │                          │   └────────────────────────┘   ┃
+  │                          │   ← 填入OBS测出的延迟值         ┃←★★★
+  │                          │                                 ┃
+  │                          │  【系统声音】                    ┃
+  │                          │   🔇 静音  ← 必须关掉！         │
+  │                          │                                 │
+  ├──────────────────────────┴─────────────────────────────────┤
+  │                     [  开 始 直 播  ]                       │
+  └────────────────────────────────────────────────────────────┘
+</code></pre>
+<ol>
+<li>电脑A 打开<strong>微信视频号直播助手</strong>，扫码登录，创建直播间。</li>
+</ol>
+<ol>
+<li><strong>接入画面：</strong></li>
+</ol>
+<ul>
+<li>返回 OBS → 点击右下角<strong>【启动虚拟摄像机】</strong>（按钮变成高亮）</li>
+<li>助手 → 添加源 → <strong>【摄像头】</strong> → 选 <strong><code>OBS Virtual Camera</code></strong></li>
+<li>可以看到 OBS 的完整画中画导播画面 = 接入成功</li>
+</ul>
+<ol>
+<li><strong>接入声音 + 设定偏移：</strong></li>
+</ol>
+<ul>
+<li>助手设置 → <strong>【麦克风】</strong> → 开启</li>
+<li>设备选 <strong><code>USB 外置声卡</code></strong>（同一个接了 Zoom H6 Line OUT 的物理声卡，<code>USB Audio Device</code>）</li>
+<li>找到助手的 <strong>【声音偏移】</strong> → 填入第四步测出的数值（如 <code>180</code> 毫秒）</li>
+</ul>
+<ol>
+<li><strong>静音系统声音：</strong></li>
+</ol>
+<ul>
+<li>助手里把<strong>默认的"系统声音"彻底静音</strong> → 防止电脑通知声/微信提示音漏进直播间</li>
+</ul>
+<pre><code>
+【系统声音静音位置】（直播助手设置区，麦克风设置下方）
+
+  ┌─────────────────────────────────────┐
+  │  【麦克风】   USB 外置声卡 ▼         │
+  │  声音偏移:  [ 180 ] ms              │
+  ├─────────────────────────────────────┤
+  │  【系统声音】                        │
+  │  音量: ███████░░░░  [静音🔇] ◄━━━━━━━━━━ 点这里！必须关!
+  │         ↑ 这条划掉，不让电脑系统声音  │
+  │           进入直播间                 │
+  └─────────────────────────────────────┘
+  ⚠️ 不关的后果：微信消息「叮」、工作群通知、系统报错
+              全部实时播给观众，非常尴尬！
+</code></pre>
+<hr>
+<h2>🚀 最终：开播前最后 1 分钟检查清单</h2>
+<table><tbody>
+<tr><th>检查项</th><th>期望状态</th><th>紧急处理</th></tr>
+<tr><td>调音台总推子</td><td>在 <code>0</code> 刻度</td><td>推到位</td></tr>
+<tr><td>电脑B下行声音</td><td>会场能听到北京声音</td><td>检查7/8通道推子</td></tr>
+<tr><td>电脑B AUX 1</td><td>北京领导端无回音</td><td>把7/8通道AUX1旋钮关死</td></tr>
+<tr><td>Zoom H6 电平</td><td>以绿灯为主，不出红灯</td><td>调低H6输入增益</td></tr>
+<tr><td>OBS 混音器</td><td>只有<code>全场声音_Zoom</code>在跳动，桌面音频静音</td><td>重新静音/添加音频设备</td></tr>
+<tr><td>OBS 场景</td><td>三个场景已建好，画面可切换</td><td>确认采集卡设备选择正确</td></tr>
+<tr><td>OBS 本地录制</td><td>点击【开始录制】，MKV 文件正在写入</td><td>先点录制</td></tr>
+<tr><td>OBS 虚拟摄像机</td><td>按钮高亮，助手里能看到 OBS 画面</td><td>点击【启动虚拟摄像机】</td></tr>
+<tr><td>助手麦克风设备</td><td>选的是 <code>USB 外置声卡</code>（非系统默认麦克风）</td><td>重新选择设备</td></tr>
+<tr><td>助手声音偏移</td><td>填入了测定值（如 <code>180</code>）</td><td>补填</td></tr>
+<tr><td>助手系统声音</td><td>静音状态</td><td>点静音</td></tr>
+<tr><td>拍手测试</td><td>助手预览里声画同步</td><td>微调声音偏移值</td></tr>
+</tbody></table>
+<p><strong>全部✅ 后 → 点击助手【开始直播】</strong></p>
+<hr>
+<h2>🆘 地狱开局应急预案</h2>
+<h3>预案 A：调音台 AUX 全线失灵（无法给北京防回音送声）</h3>
+<ul>
+<li>AUX OUT 送不了声 → 改用无线麦克风接收端直接插电脑B声卡红孔（纯无线接收，不绕调音台）</li>
+<li>利用腾讯会议自带的"降噪"功能在软件层面抑制回音</li>
+</ul>
+<h3>预案 B：Zoom H6 故障（电脑A没有声音）</h3>
+<ul>
+<li>应急路线：调音台 <code>REC OUT</code> → 音频隔离器 → 直接接电脑A USB声卡红孔（省去H6）</li>
+<li>OBS 里的音频设备不需要重新改，物理线路接好后声音自动进来</li>
+</ul>
+<h3>预案 C：微信助手找不到"声音偏移"设置</h3>
+<ul>
+<li>不同版本的助手界面可能不同，找不到时：用 OBS 的老方案（Sync Offset 大数值）做本地预览参考，声音偏移靠实际测试调优，开播前多做拍手测试</li>
+</ul>
+<hr>
+<blockquote>
+<p>## 📌 全链路声音路由总结（一句话版）</p>
+<p><strong>话筒 → 调音台（Mix-Minus防回音处理）→ REC OUT → Zoom H6（电平缓冲）→ USB声卡红孔 → OBS（导播画面）→ 虚拟摄像机+USB声卡 → 微信助手（声音偏移补偿）→ 直播间观众</strong></p>
+</blockquote>
+</body>
+</html>

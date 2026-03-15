@@ -1,0 +1,4 @@
+interface:
+  display_name: "结算单生成器"
+  short_description: "按固定字段收集项目资料并自动生成可打印的结算单 Word 文档"
+  default_prompt: "Use $settlement-docx-generator to collect the key settlement fields and generate a printable settlement-sheet Word document."

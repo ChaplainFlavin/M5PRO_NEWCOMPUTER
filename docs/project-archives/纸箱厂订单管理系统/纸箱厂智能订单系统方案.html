@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>纸箱厂轻量级智能订单流转系统 — 方案报告</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+        /* ===== 打印页面设置 ===== */
+        @page {
+            size: A4 portrait;
+            margin: 16mm 14mm 14mm 14mm;
+        }
+
+        :root {
+            --primary: #1a56db;
+            --primary-light: #e8f0fe;
+            --accent: #f97316;
+            --accent-light: #fff7ed;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: var(--gray-800);
+            background: #fff;
+            line-height: 1.65;
+            font-size: 13.5px;
+        }
+
+        /* ===== 封面（唯一强制换页处）===== */
+        .cover {
+            background: linear-gradient(135deg, #0f2167 0%, #1a56db 55%, #1e40af 100%);
+            color: white;
+            padding: 72px 56px 64px;
+            position: relative;
+            overflow: hidden;
+            /* 屏幕端高度 */
+            min-height: 480px;
+            /* 打印时：封面后强制新页 */
+            page-break-after: always;
+            break-after: page;
+            /* 打印时用flex撑满整页 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .cover::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -60px;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .cover-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 26px;
+        }
+
+        .cover h1 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 14px;
+        }
+
+        .cover h1 span {
+            color: #93c5fd;
+        }
+
+        .cover .subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            max-width: 540px;
+            margin-bottom: 44px;
+            font-weight: 300;
+        }
+
+        .cover-meta {
+            display: flex;
+            gap: 36px;
+            font-size: 12.5px;
+            opacity: 0.72;
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+            padding-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .cover-meta strong {
+            display: block;
+            color: white;
+            opacity: 1;
+            font-size: 13px;
+        }
+
+        /* ===== 正文主容器（封面后唯一 wrapper）===== */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px 44px 48px;
+        }
+
+        /* ===== Section 标题 ===== */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin: 32px 0 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        /* 与前一模块的分隔 */
+        .section-header.first {
+            margin-top: 0;
+        }
+
+        .section-num {
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12.5px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        /* ===== 痛点卡片网格 ===== */
+        .pain-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .pain-card {
+            border: 1px solid #fecaca;
+            background: var(--danger-light);
+            border-radius: 9px;
+            padding: 14px 16px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .pain-card .pain-title {
+            font-weight: 700;
+            color: var(--danger);
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .pain-card p {
+            font-size: 12.5px;
+            color: var(--gray-700);
+            line-height: 1.55;
+        }
+
+        /* ===== 流程链 ===== */
+        .flow-chain {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 9px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .flow-node {
+            background: white;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            border-radius: 5px;
+            padding: 4px 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            color: var(--gray-600);
+            font-size: 15px;
+        }
+
+        /* ===== 模块卡片 ===== */
+        .module-block {
+            margin-bottom: 22px;
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            overflow: hidden;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .module-header {
+            padding: 12px 18px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-header.blue {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .module-header.orange {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .module-header.green {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .module-header.yellow {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .module-header.purple {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+        .module-body {
+            padding: 16px 18px;
+        }
+
+        /* ===== 表格 ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin: 10px 0;
+        }
+
+        th {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            font-weight: 600;
+            padding: 8px 11px;
+            text-align: left;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        td {
+            padding: 8px 11px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ===== 高亮框 ===== */
+        .highlight-box {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 7px 7px 0;
+            padding: 11px 15px;
+            margin: 11px 0;
+            font-size: 12.5px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .highlight-box.orange {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+
+        .highlight-box.green {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        /* ===== 步骤列表 ===== */
+        .steps {
+            margin: 10px 0;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 11px;
+            margin-bottom: 10px;
+            align-items: flex-start;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-content {
+            font-size: 12.5px;
+            color: var(--gray-700);
+        }
+
+        .step-content strong {
+            color: var(--gray-900);
+        }
+
+        /* ===== 物流模拟卡 ===== */
+        .logistics-card {
+            background: #0f2167;
+            color: white;
+            border-radius: 10px;
+            padding: 17px 20px;
+            margin: 13px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.75;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .logistics-card .l-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 9px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 7px;
+        }
+
+        .logistics-card .c-green {
+            color: #86efac;
+        }
+
+        .logistics-card .c-red {
+            color: #fca5a5;
+        }
+
+        .logistics-card .c-yellow {
+            color: #fde68a;
+        }
+
+        .logistics-card .c-gray {
+            color: #94a3b8;
+        }
+
+        .logistics-card .l-divider {
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            margin: 8px 0;
+        }
+
+        /* ===== 代码块 ===== */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 7px;
+            padding: 13px 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.65;
+            margin: 11px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .code-block .c-green {
+            color: #86efac;
+        }
+
+        .code-block .c-yellow {
+            color: #fde68a;
+        }
+
+        .code-block .c-red {
+            color: #fca5a5;
+        }
+
+        .code-block .c-blue {
+            color: #93c5fd;
+        }
+
+        /* ===== 技术架构 ===== */
+        .arch-diagram {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 9px;
+            padding: 18px;
+            margin: 11px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .arch-layer {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 7px;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .arch-layer-icon {
+            font-size: 18px;
+            width: 32px;
+            text-align: center;
+        }
+
+        .arch-layer-text h4 {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .arch-layer-text p {
+            font-size: 11.5px;
+            color: var(--gray-600);
+        }
+
+        .arch-arrow {
+            text-align: center;
+            color: var(--gray-600);
+            font-size: 16px;
+            margin: 2px 0;
+        }
+
+        /* ===== 成本格子 ===== */
+        .cost-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 11px;
+            margin: 13px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .cost-item {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 9px;
+            padding: 13px;
+            text-align: center;
+        }
+
+        .cost-item .cost-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success);
+            display: block;
+        }
+
+        .cost-item .cost-label {
+            font-size: 11.5px;
+            color: var(--gray-600);
+            margin-top: 3px;
+        }
+
+        .cost-total {
+            background: linear-gradient(135deg, #0f2167, #1a56db);
+            color: white;
+            border-radius: 9px;
+            padding: 14px 20px;
+            text-align: center;
+            margin-top: 11px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .cost-total .total-num {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .cost-total .total-label {
+            font-size: 12.5px;
+            opacity: 0.8;
+        }
+
+        /* ===== 分期路径 ===== */
+        .phase-item {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 12px;
+            padding: 14px 16px;
+            border-radius: 9px;
+            border: 1px solid var(--gray-200);
+            align-items: flex-start;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .phase-badge {
+            padding: 3px 11px;
+            border-radius: 16px;
+            font-size: 11.5px;
+            font-weight: 700;
+            white-space: nowrap;
+            height: fit-content;
+            margin-top: 1px;
+        }
+
+        .phase-badge.p1 {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .phase-badge.p2 {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .phase-badge.p3 {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .phase-content h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 3px;
+        }
+
+        .phase-content p {
+            font-size: 12.5px;
+            color: var(--gray-600);
+        }
+
+        /* ===== 待确认问题 ===== */
+        .question-item {
+            display: flex;
+            gap: 11px;
+            padding: 10px 13px;
+            border-radius: 7px;
+            margin-bottom: 7px;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            font-size: 12.5px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .question-item .q-num {
+            color: var(--primary);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .question-item .q-text {
+            color: var(--gray-700);
+        }
+
+        .question-item .q-impact {
+            color: var(--gray-600);
+            font-size: 11.5px;
+        }
+
+        /* ===== 徽章 ===== */
+        .badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-required {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-auto {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-optional {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        /* ===== 通用 ===== */
+        ul {
+            padding-left: 18px;
+        }
+
+        ul li {
+            font-size: 12.5px;
+            color: var(--gray-700);
+            margin-bottom: 3px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--gray-200);
+            margin: 26px 0;
+        }
+
+        p.lead {
+            font-size: 12.5px;
+            color: var(--gray-600);
+            margin-bottom: 13px;
+        }
+
+        /* ===== 页脚 ===== */
+        .footer {
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            padding: 18px 44px;
+            text-align: center;
+            font-size: 11.5px;
+            color: var(--gray-600);
+        }
+
+        /* ===== 打印专属：强化防断页 ===== */
+        @media print {
+
+            /* 封面：撑满整个A4页面，消除下方空白 */
+            .cover {
+                height: 100vh !important;
+                min-height: 0 !important;
+                padding: 56px 48px;
+                box-sizing: border-box;
+                display: flex !important;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            body {
+                font-size: 12.5px;
+            }
+
+            /* 让背景色印出来 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 封面：单独一页 */
+            .cover {
+                page-break-after: always;
+                break-after: page;
+                min-height: auto;
+                padding: 60px 48px 52px;
+            }
+
+            /* 正文容器：无多余边距 */
+            .content {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            /* 所有卡片类：不允许内部断页 */
+            .module-block,
+            .pain-card,
+            .pain-grid,
+            .arch-diagram,
+            .arch-layer,
+            .cost-grid,
+            .cost-total,
+            .phase-item,
+            .question-item,
+            .step-item,
+            .flow-chain,
+            .highlight-box,
+            .code-block,
+            .logistics-card,
+            .section-header {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            /* Section 标题默认在新内容前出现，避免孤立 */
+            .section-header {
+                break-before: auto;
+            }
+
+            /* 表格行不断页 */
+            tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            /* 页脚 */
+            .footer {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== 封面 ===== -->
+    <div class="cover">
+        <div class="cover-tag">📦 方案报告 · 2026-03-09</div>
+        <h1>纸箱厂<span>轻量级智能</span><br>订单流转系统</h1>
+        <p class="subtitle">
+            以即时通讯工具为入口，以 AI 为引擎，以飞书多维表格为数据中台，<br>
+            打通从微信下单到物流路线规划的完整业务链路，月均系统成本 ¥100–200 以内。
+        </p>
+        <div class="cover-meta">
+            <div><strong>版本</strong>v2.0（含物流规划模块）</div>
+            <div><strong>适用规模</strong>中小型纸箱厂（年营业额 500万以内）</div>
+            <div><strong>预计上线周期</strong>分三期，MVP 约 2–3 周</div>
+        </div>
+    </div>
+
+    <!-- ===== 正文（连续流式，不分 div 页）===== -->
+    <div class="content">
+
+        <!-- 1. 背景与痛点 -->
+        <div class="section-header first">
+            <div class="section-num">1</div>
+            <h2>背景与核心痛点</h2>
+        </div>
+        <p class="lead">传统纸箱厂处于数字化转型早期，设备老化无联网能力，工人文化水平受限，对复杂 ERP/OA 系统抗拒。然而业务痛点真实存在，亟需极低门槛的数字化解决方案。</p>
+
+        <div class="pain-grid">
+            <div class="pain-card">
+                <div class="pain-title">⚡ 痛点一：订单录入效率低</div>
+                <p>客户习惯微信下单（文字或手写表格照片），人工二次转录易出错，且缺少结构化字段（尺寸、材质、图案、数量、交期）统一管理。</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-title">⚡ 痛点二：生产进度不透明</div>
+                <p>车间工序（开槽→钉箱→打包）靠口头传达，老板无法实时掌握哪个订单卡在哪道工序，交期压力来时手忙脚乱。</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-title">⚡ 痛点三：材料到货断层</div>
+                <p>订单接下后需定料，但原纸何时到、到多少没有系统追踪，订单与物料之间靠人脑协调，容易出现等料停工。</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-title">⚡ 痛点四：散单叠加交期碎片</div>
+                <p>多客户同时下单，交期各不相同（"今天必达"和"后天到都行"并存），出货安排全靠老板经验，效率损耗大。</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-title">⚡ 痛点五：物流装车效率低</div>
+                <p>人工规划装哪几单、几辆车，不会计算立方体积，经常出现车没装满或某单被漏掉，运输成本浪费。</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-title">⚡ 痛点六：账期管理靠人脑</div>
+                <p>行业普遍月结 30/60 天账期，人工催收漏洞多，逾期回款难以追踪，烂账风险高，无法对客户信用评级。</p>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 2. 业务链路 -->
+        <div class="section-header">
+            <div class="section-num">2</div>
+            <h2>业务全链路设计</h2>
+        </div>
+        <p class="lead">系统覆盖从微信下单到货款核销的完整业务闭环：</p>
+        <div class="flow-chain">
+            <div class="flow-node">📱 微信下单</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">🤖 AI录入</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">📦 定料采购</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node" style="border-color:#7c3aed;color:#7c3aed;">🗓️ 排程规划</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">🏭 投产追踪</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">✅ 成品入库</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">🚛 物流规划</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">💰 回款监控</div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 3. 五大模块 -->
+        <div class="section-header">
+            <div class="section-num">3</div>
+            <h2>六大功能模块详细设计</h2>
+        </div>
+
+        <!-- 模块一 -->
+        <div class="module-block">
+            <div class="module-header blue">📱 模块一：微信订单智能录入</div>
+            <div class="module-body">
+                <p class="lead">客户在微信直接发文字消息或手写表格照片，AI 自动完成结构化录入，无需工人操作任何系统。</p>
+                <table>
+                    <tr>
+                        <th>提取字段</th>
+                        <th>示例</th>
+                        <th>状态</th>
+                    </tr>
+                    <tr>
+                        <td>客户名称</td>
+                        <td>王老板</td>
+                        <td><span class="badge badge-required">必填</span></td>
+                    </tr>
+                    <tr>
+                        <td>尺寸规格</td>
+                        <td>长×宽×高（50×40×30 cm）</td>
+                        <td><span class="badge badge-required">必填</span></td>
+                    </tr>
+                    <tr>
+                        <td>材质</td>
+                        <td>五层特硬 / 三层普通</td>
+                        <td><span class="badge badge-required">必填</span></td>
+                    </tr>
+                    <tr>
+                        <td>图案</td>
+                        <td>素箱 / 印刷LOGO</td>
+                        <td><span class="badge badge-required">必填</span></td>
+                    </tr>
+                    <tr>
+                        <td>订单数量</td>
+                        <td>2000 件</td>
+                        <td><span class="badge badge-required">必填</span></td>
+                    </tr>
+                    <tr>
+                        <td>交付期</td>
+                        <td>3月20日前</td>
+                        <td><span class="badge badge-optional">有则录</span></td>
+                    </tr>
+                    <tr>
+                        <td>单箱体积 (m³)</td>
+                        <td>50×40×30 ÷ 10⁶ = 0.06 m³</td>
+                        <td><span class="badge badge-auto">自动计算</span></td>
+                    </tr>
+                    <tr>
+                        <td>成品总体积</td>
+                        <td>0.06 × 2000 = 120 m³</td>
+                        <td><span class="badge badge-auto">自动计算</span></td>
+                    </tr>
+                </table>
+                <div class="highlight-box">
+                    <strong>📌 确认机制（防误录）</strong>：AI 提取后回显确认卡片，销售一键"✅确认"或"❌纠错"后才正式入系统，同时自动播报：<br>
+                    <em>"✅ 订单 #031 已录入 — 王老板 | 五层特硬 50×40×30 | 2000件 | 交期：3月20日"</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块二 -->
+        <div class="module-block">
+            <div class="module-header orange">🧾 模块二：物料采购与到货追踪</div>
+            <div class="module-body">
+                <p class="lead">补全草案缺失环节——从"下单后定料"到"原纸到货触发投产"全程自动化监控。</p>
+                <div class="steps">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <div class="step-content"><strong>订单确认后自动推送采购提醒</strong>：系统通知老板所需原纸规格及数量，并与现有库存对比，给出缺口建议。</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-content"><strong>老板确认叫料</strong>：回复"已叫料，预计明天到" → AI 记录预计到货时间，临近时发送提醒。</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-content"><strong>仓库确认到货</strong>："原纸到了，10吨" → AI 更新库存并自动判断是否满足订单需求，推送"✅ 订单 #031
+                            原料齐备，可安排投产"。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块三：交付驱动逆向排程（新）-->
+        <div class="module-block">
+            <div class="module-header" style="background:#ede9fe;color:#6d28d9;">🗓️ 模块三：交付驱动排程（逆向生产规划）</div>
+            <div class="module-body">
+                <div class="highlight-box" style="background:#ede9fe;border-color:#7c3aed;">
+                    <strong>💡 核心理念</strong>：不再「见到哪单做哪单」，而是以<strong>送货目的地 +
+                        送货日期</strong>为出发点，反向推算生产顺序，让每周生产有章可循，大幅提升产能利用率。
+                </div>
+
+                <h4 style="margin:14px 0 9px;font-size:13px;color:var(--gray-900);">🔄 三阶段规划逻辑</h4>
+                <div class="steps">
+                    <div class="step-item">
+                        <div class="step-num" style="background:#7c3aed;">1</div>
+                        <div class="step-content">
+                            <strong>以送货目的地聚合订单（按镇街分组）</strong>：系统每周一自动扫描所有未排产订单，按客户所在镇街（如北滘、容桂、均安）分组，为每个区域分配一个大致送货日。同一镇街的订单集中在同一时间段生产，再一起出货，既减少来回车程，也让生产节奏更集中。
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num" style="background:#7c3aed;">2</div>
+                        <div class="step-content"><strong>反推生产优先队列</strong>：送货日倒推 1–2 天为"打包截止日"，系统据此对全部订单生成优先级标签（🔴今日必做
+                            / 🟡明日安排 / 🟢下周再做），自动推送给车间。工人按队列做单，彻底告别随机乱序。</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num" style="background:#7c3aed;">3</div>
+                        <div class="step-content">
+                            <strong>成品出来后二次验证微调</strong>：当部分订单已完工、部分仍在生产时，系统根据实际完工量重新生成最终出货方案——已完工先走，未完工推后，做到动态自适应而非死板计划。
+                        </div>
+                    </div>
+                </div>
+
+                <h4 style="margin:14px 0 9px;font-size:13px;color:var(--gray-900);">📋 每周推送示例（周一早 8 点）</h4>
+                <div class="code-block">
+                    <span class="c-blue">🗓️ 本周生产优先队列（AI 自动生成，老板确认后发给车间）</span>
+                    ──────────────────────────────────────────────────
+                    <span style="color:#c4b5fd;">【北滘线 — 计划本周四送货】</span>
+                    <span class="c-red">🔴 今日必做：#031 张老板 五层特硬 50×40×30 2000件</span>
+                    <span class="c-red">🔴 今日必做：#035 刘老板 三层普通 60×50×40 500件</span>
+                    <span class="c-yellow">🟡 明日安排：#038 陈老板 五层普通 40×30×30 1200件</span>
+
+                    <span style="color:#c4b5fd;">【容桂线 — 计划本周五送货】</span>
+                    <span class="c-yellow">🟡 明日安排：#042 黄老板 五层特硬 55×45×35 800件</span>
+                    <span class="c-yellow">🟡 明日安排：#045 吴老板 三层普通 50×40×30 3000件</span>
+
+                    <span class="c-green">🟢 下周再做：#050 孙老板（交期宽松，原材料尚未到齐）</span>
+                </div>
+
+                <table>
+                    <tr>
+                        <th>关键前提</th>
+                        <th>说明</th>
+                        <th>实施难度</th>
+                    </tr>
+                    <tr>
+                        <td>客户档案绑定所在镇街</td>
+                        <td>首次建档录入一次，后续订单自动继承</td>
+                        <td style="color:var(--success);font-weight:700;">⭐ 简单</td>
+                    </tr>
+                    <tr>
+                        <td>订单有交付期</td>
+                        <td>无明确交期者，系统默认"下单日 + 7天"，老板可手动调整</td>
+                        <td style="color:var(--success);font-weight:700;">⭐ 简单</td>
+                    </tr>
+                    <tr>
+                        <td>工人按优先队列执行</td>
+                        <td>管理习惯改变是真正落地难点，技术本身无难度</td>
+                        <td style="color:var(--warning);font-weight:700;">⭐⭐ 中等</td>
+                    </tr>
+                </table>
+
+                <div class="highlight-box green">
+                    <strong>📌 额外开发量极低</strong>：本模块复用现有数据，在客户档案加"所在镇街"字段（0.5天）+ 每周生成优先队列推送（1–2天）+ 复用物流规划的二次触发（0.5天），合计约
+                    <strong>2–3 个工作日</strong>即可上线。
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块四（原模块三）-->
+        <div class="module-block">
+            <div class="module-header green">🏭 模块四：生产工序极简追踪</div>
+            <div class="module-body">
+                <p class="lead">三道工序，工人只需在微信群说一句话，AI 自动记录节点时间戳，零额外负担。</p>
+                <div class="flow-chain" style="margin-bottom:12px;">
+                    <div class="flow-node">开槽</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node">钉箱</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node">打包</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node" style="border-color:var(--success);color:var(--success);">✅ 成品入库</div>
+                </div>
+                <ul>
+                    <li>"031开完了" → AI 记录：#031 开槽完成 ✅</li>
+                    <li>"032钉好了" → AI 记录：#032 钉箱完成 ✅</li>
+                    <li>"031打好包了，2000件" → #031 打包完成，成品 2000 件入库，自动进入<strong>待出货池</strong></li>
+                </ul>
+                <div class="highlight-box green" style="margin-top:10px;">
+                    <strong>📊 飞书生产看板</strong>：厂长可随时查看全局生产状态，哪个单卡在哪道工序一目了然，手机端即可访问。
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块四：物流（重点）-->
+        <div class="module-block">
+            <div class="module-header yellow">🚛 模块五：智能物流装车 &amp; 路线规划（核心差异化功能）</div>
+            <div class="module-body">
+                <div class="highlight-box orange">
+                    <strong>🎯 核心价值</strong>：系统每天早上告诉老板——今天派几辆车、每辆装哪些货、按什么顺序送、几点能到、几点回厂。老板只需确认，省去人工排班的全部脑力负担。
+                </div>
+
+                <h4 style="margin:14px 0 9px;font-size:13px;color:var(--gray-900);">📊 第一步：汇总当日待出货池（D-1 更新）</h4>
+                <div class="code-block">
+                    <span class="c-blue">📊 今日可出货池（共 8 单）</span>
+                    ─────────────────────────────────────
+                    <span class="c-red">#025 王老板 A区 体积 3.2m³ 交期 ⚠️今天必达</span>
+                    <span class="c-red">#028 李老板 B区 体积 5.1m³ 交期 ⚠️今天必达</span>
+                    <span class="c-yellow">#031 张老板 A区 体积 1.8m³ 交期 明天</span>
+                    <span class="c-yellow">#033 赵老板 C区 体积 4.0m³ 交期 明天</span>
+                    <span class="c-green">#035 孙老板 A区 体积 2.7m³ 交期 后天</span>
+                    <span class="c-green">#040 钱老板 D区 体积 6.1m³ 交期 后天</span>
+                </div>
+
+                <h4 style="margin:14px 0 9px;font-size:13px;color:var(--gray-900);">⚙️ 第二步：三步规划算法</h4>
+                <div class="steps">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <div class="step-content"><strong>交期排序</strong>：优先标记"今天必达"订单，确保不遗漏。</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-content"><strong>区域聚合 + Bin Packing（装箱算法）</strong>：同区域订单优先合并同一辆车，在额定立方体积约束（如
+                            60m³/车）内最大化装载率，减少总车次。</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-content"><strong>真实路线时间优化（高德 API + OR-Tools）</strong>：调用高德地图获取真实导航时间（含实时路况），用
+                            OR-Tools VRP 算法计算每辆车的最优送货顺序，以<strong>行驶时间最短</strong>为目标，输出含预计到达时刻的行程单。</div>
+                    </div>
+                </div>
+
+                <h4 style="margin:14px 0 9px;font-size:13px;color:var(--gray-900);">📋 第三步：输出装车方案（含到站时刻）</h4>
+                <div class="logistics-card">
+                    <div class="l-title">🚛 出货方案 — 2026-03-10（AI 生成建议，老板确认后生效）</div>
+                    【第一车】张师傅 | 装载 <span class="c-green">52.3m³ / 60m³</span> | 利用率 87%
+                    <div class="l-divider"></div>
+                    站1 → <span class="c-red">王老板（A区）</span> #025 3.2m³ 行驶 22分钟 <span class="c-red">⚠️今日必达</span> → 预计到达
+                    08:22
+                    站2 → <span class="c-yellow">张老板（A区）</span> #031 1.8m³ 行驶 15分钟 → 预计到达 08:37
+                    站3 → <span class="c-yellow">孙老板（A区）</span> #035 2.7m³ 行驶 11分钟 → 预计到达 08:48
+                    返厂 行驶 28分钟 → 预计到达 09:16
+
+                    【第二车】司机待定 | 装载 <span class="c-green">44.0m³ / 60m³</span> | 利用率 73%
+                    <div class="l-divider"></div>
+                    站1 → <span class="c-red">李老板（B区）</span> #028 5.1m³ 行驶 34分钟 <span class="c-red">⚠️今日必达</span> → 预计到达
+                    08:34
+                    站2 → <span class="c-yellow">赵老板（C区）</span> #033 4.0m³ 行驶 31分钟 → 预计到达 09:05
+                    <div class="l-divider"></div>
+                    <span class="c-gray">❓ 暂缓出货（D+1）：#040 钱老板（D区）6.1m³ — 交期后天，建议合并明日车次</span>
+                </div>
+
+                <div class="highlight-box green">
+                    <strong>💬 老板操作</strong>：收到方案直接回复"确认"即可；如需调整，说"把033换到第一车"，AI 重新计算后推送修改版。确认后自动发送行程单给司机，并向各收货客户发送配送通知。
+                </div>
+
+                <h4 style="margin:14px 0 9px;font-size:13px;color:var(--gray-900);">🗺️ 地图 API 成本说明</h4>
+                <table>
+                    <tr>
+                        <th>服务</th>
+                        <th>用途</th>
+                        <th>日均用量估算</th>
+                        <th>费用</th>
+                    </tr>
+                    <tr>
+                        <td>高德地图（免费版）</td>
+                        <td>地理编码（地址→经纬度）</td>
+                        <td>~15次/天</td>
+                        <td style="color:var(--success);font-weight:700;">¥0</td>
+                    </tr>
+                    <tr>
+                        <td>高德路线规划 API</td>
+                        <td>N×N 节点两两时间矩阵</td>
+                        <td>~225次/天</td>
+                        <td style="color:var(--success);font-weight:700;">¥0（免费额度内）</td>
+                    </tr>
+                    <tr>
+                        <td>OR-Tools（Google开源）</td>
+                        <td>VRP 最优路线解算</td>
+                        <td>本地运行</td>
+                        <td style="color:var(--success);font-weight:700;">¥0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 模块五 -->
+        <div class="module-block">
+            <div class="module-header purple">💰 模块六：账期与回款自动化监控</div>
+            <div class="module-body">
+                <ul>
+                    <li>客户档案绑定账期类型（月结30天 / 月结60天 / 先款后货），首次建档录入，后续订单自动继承</li>
+                    <li>订单进入【已发货】状态后，AI 自动计算并标注<strong>最晚回款日</strong></li>
+                    <li>每日早 9 点向老板私发逾期预警，精确到客户名、单号、金额、逾期天数</li>
+                    <li>财务说"王老板的5000块今天打到了" → AI 自动核销，并累计该客户的平均回款周期用于信用评级</li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 4. 技术架构 -->
+        <div class="section-header">
+            <div class="section-num">4</div>
+            <h2>技术架构</h2>
+        </div>
+        <div class="arch-diagram">
+            <div class="arch-layer">
+                <div class="arch-layer-icon">📱</div>
+                <div class="arch-layer-text">
+                    <h4>接入层 — 微信（个人微信 / 企业微信）</h4>
+                    <p>客户下单消息、工人工序汇报、财务核销语音，全在微信完成，零额外学习成本</p>
+                </div>
+            </div>
+            <div class="arch-arrow">↓ 消息/语音/图片</div>
+            <div class="arch-layer">
+                <div class="arch-layer-icon">🤖</div>
+                <div class="arch-layer-text">
+                    <h4>AI 中间件 — OpenClaw Agent / 定制 Python Bot</h4>
+                    <p>多模态 OCR（订单识别）· NLP 工序解析 · 装箱算法 · 路线规划 · 定时任务推送</p>
+                </div>
+            </div>
+            <div class="arch-arrow">↓ 结构化数据读写</div>
+            <div class="arch-layer">
+                <div class="arch-layer-icon">🗄️</div>
+                <div class="arch-layer-text">
+                    <h4>数据层 — 飞书多维表格</h4>
+                    <p>订单表 · 物料追踪表 · 生产进度表 · 客户档案 · 账期表 · 出货记录</p>
+                </div>
+            </div>
+            <div class="arch-arrow">↓ 可视化展示</div>
+            <div class="arch-layer">
+                <div class="arch-layer-icon">📊</div>
+                <div class="arch-layer-text">
+                    <h4>看板层 — 飞书多视图（甘特 / 日历 / 卡片）</h4>
+                    <p>生产看板 · 待出货池 · 应收账款视图，老板手机端随时查看</p>
+                </div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 5. 成本 -->
+        <div class="section-header">
+            <div class="section-num">5</div>
+            <h2>月均系统成本估算</h2>
+        </div>
+        <div class="cost-grid">
+            <div class="cost-item">
+                <span class="cost-num">¥0</span>
+                <div class="cost-label">高德地图 API<br>（日均用量在免费额度内）</div>
+            </div>
+            <div class="cost-item">
+                <span class="cost-num">¥0</span>
+                <div class="cost-label">OR-Tools 路线规划<br>（Google 完全开源）</div>
+            </div>
+            <div class="cost-item">
+                <span class="cost-num">¥0</span>
+                <div class="cost-label">飞书多维表格<br>（免费版覆盖此规模）</div>
+            </div>
+            <div class="cost-item">
+                <span class="cost-num">¥50–100</span>
+                <div class="cost-label">大模型 API<br>（DeepSeek / GLM-4V）</div>
+            </div>
+            <div class="cost-item">
+                <span class="cost-num">¥0</span>
+                <div class="cost-label">服务器<br>（闲置旧电脑 / Mac Mini）</div>
+            </div>
+            <div class="cost-item">
+                <span class="cost-num">一次性</span>
+                <div class="cost-label">开发成本<br>（无持续 SaaS 费用）</div>
+            </div>
+        </div>
+        <div class="cost-total">
+            <div class="total-num">¥100 – 200 / 月</div>
+            <div class="total-label">总运行成本（无需购买 ERP，无需额外硬件投入）</div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 6. 分期路径 -->
+        <div class="section-header">
+            <div class="section-num">6</div>
+            <h2>建议分期开发路径</h2>
+        </div>
+        <div class="phase-item">
+            <div class="phase-badge p1">一期 MVP</div>
+            <div class="phase-content">
+                <h4>微信订单录入 + 生产工序追踪 + 飞书看板</h4>
+                <p>先让数据流动起来，老板能通过飞书实时看到订单状态。预计工期：2–3 周。</p>
+            </div>
+        </div>
+        <div class="phase-item">
+            <div class="phase-badge p2">二期</div>
+            <div class="phase-content">
+                <h4>物料到货追踪 + 账期回款监控</h4>
+                <p>补全物料采购环节，打通财务回款链路，构建客户信用画像。预计工期：1–2 周。</p>
+            </div>
+        </div>
+        <div class="phase-item">
+            <div class="phase-badge p3">三期（核心差异化）</div>
+            <div class="phase-content">
+                <h4>🚛 智能物流装车规划 + 时间优化路线 + 自动通知司机/客户</h4>
+                <p>客户地址库积累完整后上线，效果最佳。AI 每日生成装车方案，老板确认后司机和客户自动收到通知。预计工期：2–3 周。</p>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 7. 待确认 -->
+        <div class="section-header">
+            <div class="section-num">7</div>
+            <h2>关键待确认事项</h2>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q1</div>
+            <div>
+                <div class="q-text">微信是个人微信还是企业微信？</div>
+                <div class="q-impact">⚙️ 影响 API 接入方式，企微有官方 API，个人微信需要第三方方案</div>
+            </div>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q2</div>
+            <div>
+                <div class="q-text">每辆货车的额定体积是多少 m³？有重量限制吗？</div>
+                <div class="q-impact">⚙️ 装车规划的核心约束参数</div>
+            </div>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q3</div>
+            <div>
+                <div class="q-text">客户送货地址是否固定？大致分布在几个区域？</div>
+                <div class="q-impact">⚙️ 影响路线规划的区域分组策略</div>
+            </div>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q4</div>
+            <div>
+                <div class="q-text">一天大约出几辆车？同时在飞的订单最多有多少单？</div>
+                <div class="q-impact">⚙️ 系统规模估算，影响数据库设计和 API 用量</div>
+            </div>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q5</div>
+            <div>
+                <div class="q-text">原纸是按订单单独采购，还是有公共库存统一管理？</div>
+                <div class="q-impact">⚙️ 影响物料追踪模块的设计逻辑</div>
+            </div>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q6</div>
+            <div>
+                <div class="q-text">司机联系方式有没有现成列表？客户是否有固定联系人？</div>
+                <div class="q-impact">⚙️ 用于自动发送行程单和配送通知</div>
+            </div>
+        </div>
+        <div class="question-item">
+            <div class="q-num">Q7</div>
+            <div>
+                <div class="q-text">能提供几张现有手写订单表格的照片作为样本？</div>
+                <div class="q-impact">⚙️ 用于训练和调试 OCR 识别的 Prompt</div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+
+    <div class="footer">
+        本文档由 AI 辅助生成 · 版本 v2.0 · 2026-03-09 · 仅供内部讨论使用
+    </div>
+
+</body>
+
+</html>
