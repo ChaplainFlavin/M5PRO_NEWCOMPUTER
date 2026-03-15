@@ -1,0 +1,32 @@
+# Secrets and auth
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+auth.json
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Node
+node_modules/
+
+# Generated outputs and archives
+*.zip
+*.log
+outputs/
+tmp/
+
+# Large binary artifacts
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
