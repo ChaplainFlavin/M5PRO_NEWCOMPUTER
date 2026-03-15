@@ -17,6 +17,18 @@ Contents:
 - prompt refinement iterations
 - role and image prompt notes
 
+### Wure MV local archive
+
+Location:
+
+- `prompts/wure-mv/20260313/`
+
+Contents:
+
+- early analysis archive
+- second-round optimization record
+- scattered-shot prompt archive
+
 ### Active working memory
 
 Location:
