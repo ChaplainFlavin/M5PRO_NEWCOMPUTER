@@ -28,6 +28,10 @@ $filesToCopy = @(
 
 $dirsToCopy = @(
     @{
+        Source = Join-Path $repoRoot "agent"
+        Target = Join-Path $quickOpenRoot "agent"
+    },
+    @{
         Source = Join-Path $repoRoot "prompts\mv-jimeng-seedance"
         Target = Join-Path $quickOpenRoot "prompts\mv-jimeng-seedance"
     },
@@ -80,6 +84,10 @@ $lines = @(
     '',
     '- `prompts/mv-jimeng-seedance/`',
     '- `prompts/wure-mv/`',
+    '',
+    '## Agent System Files',
+    '',
+    '- `agent/`',
     '',
     '## Active Memory',
     '',

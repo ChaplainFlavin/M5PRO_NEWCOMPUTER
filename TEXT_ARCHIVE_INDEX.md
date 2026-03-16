@@ -68,11 +68,13 @@ Contents:
 
 Location:
 
+- `agent/`
 - `skills/`
 - `workflows/`
 
 Contents:
 
+- agent rules and context files from `.agent/`
 - active custom skills from `.claude/skills/`
 - workflow docs from `.agents/workflows/`
 
