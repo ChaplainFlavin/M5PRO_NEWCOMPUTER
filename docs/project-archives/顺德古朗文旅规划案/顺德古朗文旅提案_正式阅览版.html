@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>顺德古朗村“微度假·轻徒步”策划方案（阅览版）</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+
+        :root {
+            --gold: #b38b4d;
+            --dark-gray: #1b1b1b;
+            --paper: #f0ebe1;
+            --accent-red: #8c2a2a;
+            --text-main: #333333;
+            --text-light: #555555;
+        }
+
+        body {
+            margin: 0;
+            background-color: #2c2926;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 100px;
+            padding: 100px 0;
+            font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+        }
+
+        .slide {
+            width: 1920px;
+            height: 1080px;
+            background-color: var(--paper);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            color: var(--text-main);
+            box-sizing: border-box;
+            /* Fix for overflow issues */
+        }
+
+        /* Print Settings for seamless 16:9 PDF export */
+        @media print {
+            @page {
+                size: 1920px 1080px;
+                margin: 0;
+            }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+                gap: 0;
+                display: block;
+            }
+
+            .slide {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                border: none;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        /* Cover Slide */
+        .cover {
+            background-color: var(--dark-gray);
+            color: var(--paper);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            bottom: 50px;
+            left: 50px;
+            right: 50px;
+            border: 2px solid rgba(179, 139, 77, 0.3);
+            pointer-events: none;
+        }
+
+        .cover-title {
+            font-size: 110px;
+            font-weight: 900;
+            letter-spacing: 15px;
+            color: var(--gold);
+            margin-bottom: 40px;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .cover-subtitle {
+            font-size: 45px;
+            font-weight: 400;
+            letter-spacing: 8px;
+            color: #d0c8b8;
+            margin-bottom: 80px;
+        }
+
+        /* Chapter Divider Slide */
+        .chapter-divider {
+            background-color: var(--dark-gray);
+            justify-content: center;
+            align-items: flex-start;
+            padding: 150px 200px;
+            text-align: left;
+        }
+
+        /* Split Layouts */
+        .split {
+            flex-direction: row;
+        }
+
+        .text-panel {
+            width: 50%;
+            padding: 75px 100px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .image-panel {
+            width: 50%;
+            height: 100%;
+            position: relative;
+            background-color: var(--dark-gray);
+        }
+
+        .image-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.95;
+        }
+
+        /* Full Text Layouts */
+        .full-text {
+            width: 100%;
+            padding: 80px 150px;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Typography */
+        .part {
+            font-size: 22px;
+            color: var(--accent-red);
+            letter-spacing: 4px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .title {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1.25;
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 25px;
+            color: #111;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 5px;
+            background-color: var(--gold);
+        }
+
+        .desc {
+            font-size: 26px;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .desc p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .desc strong {
+            color: var(--accent-red);
+            font-weight: 900;
+        }
+
+        /* Lists */
+        .data-list {
+            margin-top: 25px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .data-list li {
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 35px;
+            line-height: 1.6;
+        }
+
+        .data-list li::before {
+            content: '■';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 18px;
+            top: 4px;
+        }
+
+        .data-list li strong {
+            color: #111;
+        }
+
+        /* Metric Cards */
+        .metrics-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .metric-card {
+            background: rgba(179, 139, 77, 0.1);
+            border: 1px solid rgba(179, 139, 77, 0.3);
+            padding: 30px;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .metric-value {
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--accent-red);
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 20px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .metric-sub {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .watermark {
+            position: absolute;
+            right: -30px;
+            bottom: -40px;
+            font-size: 200px;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.03);
+            pointer-events: none;
+            letter-spacing: 20px;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 0. 封面 -->
+    <div class="slide cover">
+        <div class="cover-title">岭南水乡的“周末深呼吸”</div>
+        <div class="cover-subtitle">顺德古朗村“微度假·轻徒步”及“三资”盘活策划提案</div>
+        <div
+            style="font-size: 22px; color: var(--gold); margin-top: 80px; border: 1px solid var(--gold); padding: 12px 40px; letter-spacing: 6px;">
+            正式论证阅览版</div>
+    </div>
+
+    <!-- ================= PART 1 导览 ================= -->
+    <div class="slide cover chapter-divider">
+        <div class="part" style="color: var(--gold); font-size: 32px; letter-spacing: 10px;">PART 1</div>
+        <div class="title"
+            style="color: var(--paper); font-size: 80px; border-color: var(--gold); margin-bottom: 60px;">定位破局与宏观政策响应
+        </div>
+        <div class="desc" style="color: #aaa; font-size: 30px; width: 85%; font-weight: 400; line-height: 1.8;">
+            此章节剖析古朗村的核心资产不可复制性，确立“原生态微度假”的错位竞争战略，并详述该定位如何深度匹配并落实广东省“百千万工程”的各项核心指标要求。
+        </div>
+    </div>
+
+    <!-- 1.1 破局之道：避世属性 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">破局</div>
+            <div class="part">PART 1: 定位破局</div>
+            <div class="title">不可复制的资产：<br>深掘百年历史底蕴</div>
+            <div class="desc">
+                <p>基于村落水网密布、街巷宽度有限的客观物理制约，古朗的发展战略必须坚决摒弃“大拆大建”与“重度商业化喧闹街区”的同质化路线。</p>
+                <p>古朗真正的底气，是顺德乃至珠三角极度稀缺的历史资产：<strong>皇帝御赐双牌坊（百岁坊、节孝坊）</strong>以及 15
+                    座气势恢宏的明清宗祠。这里自带一种极其稀缺的<strong>“原生态幽静”</strong>与<strong>“岁月沉淀的长寿福气”</strong>，这是人造商业景区永远无法复制的文化护城河。
+                </p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_quiet_water_town_1773659823121.png">
+        </div>
+    </div>
+
+    <!-- 1.2 客群画像定位 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">画像</div>
+            <div class="part">PART 1: 定位破局</div>
+            <div class="title">差异化战略：<br>锚定高净值家庭客群</div>
+            <div class="desc">
+                <p>当前都市家庭正经历强烈的“商业化古镇审美疲劳”，反向旅游趋势显著。</p>
+                <p>我们的受众精准锁定于<strong>追求静谧的珠三角中产家庭及银发康养群体</strong>。他们避开汹涌人潮，只为寻得一处车程 1
+                    小时内、能让全家舒缓散步与祈福的周末慢生活去处。这是一种极具长尾效应与忠诚度的“高素质情绪消费”。</p>
+                <p>我们将把蜿蜒曲折的古村肌理，包装为一条极度治愈的<strong>“水乡轻徒步路线”</strong>。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_target_audience_1773659840653.png">
+        </div>
+    </div>
+
+    <!-- 1.3 宏观政策响应 -->
+    <div class="slide full-text"
+        style="background-color: var(--dark-gray); color: var(--paper); border-left: 15px solid var(--gold);">
+        <div class="part" style="color: var(--gold);">PART 1: 政策响应</div>
+        <div class="title" style="color: var(--paper); border-color: var(--gold); margin-bottom: 40px;">满分答卷：深度落实“百千万工程”
+        </div>
+        <div class="desc" style="color: #ccc; max-width: 1500px;">
+            <p>本方案不仅具备高度的商业可行性，其本质更是为地方专项资金申报量身定制的无死角规划。各项落地动作精准踩中政府考核的四大核心 KPI：</p>
+            <ul class="data-list" style="color: #ccc; font-size: 24px; margin-top: 30px;">
+                <li><strong style="color: var(--paper);">1.
+                        新型农村集体经济增收：</strong>各类高溢价的轻量化文创产品（盲盒、手信等）由村属企业（强村公司）统筹直营，沉淀可持续的账面营收。</li>
+                <li><strong style="color: var(--paper);">2.
+                        人居环境与风貌微改造：</strong>拒绝大兴土木、不碰土地红线。采用原木风貌设施进行“极简微更新”，极大提升村落高级感。</li>
+                <li><strong style="color: var(--paper);">3.
+                        联农带农与家门口就业：</strong>文旅售货网络及服务站的日常看管、理货，全面雇佣本村留守长者兼职承接，直接达成惠民政绩。</li>
+                <li><strong style="color: var(--paper);">4.
+                        盘活闲置资产（三资管理）：</strong>通过首期轻资本文旅铺垫，夯实“高端静谧”的标签，旨在最终筑巢引凤，吸引大规模高端民宿资本进场盘活全村闲置公产。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ================= PART 2 导览 ================= -->
+    <div class="slide cover chapter-divider">
+        <div class="part" style="color: var(--gold); font-size: 32px; letter-spacing: 10px;">PART 2</div>
+        <div class="title"
+            style="color: var(--paper); font-size: 80px; border-color: var(--gold); margin-bottom: 60px;">文旅产品与地标物联化
+        </div>
+        <div class="desc" style="color: #aaa; font-size: 30px; width: 85%; font-weight: 400; line-height: 1.8;">
+            此章节阐释如何用现代产品逻辑解构厚重的宗族文化。我们取消传统粗暴的大门票，转而通过《游手信》、祈福牌、国潮盲盒等体验放大器，温和且长效地拉升留客时长与客单转化率。
+        </div>
+    </div>
+
+    <!-- 2.1 生意引擎：游手信 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">指引</div>
+            <div class="part">PART 2: 文旅产品体系</div>
+            <div class="title">体验放大器：<br>《古朗村志游手信》</div>
+            <div class="desc">
+                <p>我们不售卖进村通票，而是将利润蕴藏在<strong>能带走回忆的旅行手册</strong>中。</p>
+                <p>它不仅极具手账艺术美感，更内嵌了全村 3.9 公里步道的印章打卡地图。设计有 39.9元的“基础寻宝版”与 88元的“全家福特装版”。</p>
+                <p>集齐宗祠与古桥印章可兑换专属伴手礼。这彻底解决了年轻群体与儿童“单纯走路易疲乏”的游览痛点，提供了极强的沉浸式游戏动力。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_handdrawn_map_1773659492710.png">
+        </div>
+    </div>
+
+    <!-- 2.2 皇家祈福牌 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">祈福</div>
+            <div class="part">PART 2: 文旅产品体系</div>
+            <div class="title">老龄康养红利：<br>“御赐长庚”祈福牌</div>
+            <div class="desc">
+                <p>深度变现“百岁坊”与“皇帝御赐牌匾”的顶流稀缺资源。</p>
+                <p>针对广府文化极其看重“健康好意头”的特性，我们在古村榕树下、牌坊侧，推出印有御批字样的“长庚祈福实木牌”（配以顺德特产“苏鼠瓜”长寿礼盒）。</p>
+                <p>子女为长辈买一块祈福牌挂上，这种极具本土文化内核的<strong>高级情绪价值消费</strong>，拥有100%的核心受众转化预期。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_blessing_tags_1773659523289.png">
+        </div>
+    </div>
+
+    <!-- 2.3 盲盒 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">潮玩</div>
+            <div class="part">PART 2: 文旅产品体系</div>
+            <div class="title">年轻受众人群对策：<br>古建瑞兽 Q版图鉴盲盒</div>
+            <div class="desc">
+                <p>古村的文化普及不能依赖索然无味的图文展板。我们需要高频、高毛利的实体文创载体。</p>
+                <p>团队精炼提取古朗 15 座宗祠屋脊的灰雕飞檐、明清石狮等真实文物素材，开发出<strong>“国潮古建筑瑞兽守护神”套系盲盒</strong>。</p>
+                <p>通过巧妙的隐藏款分配算法（如洪圣宫特别款），激发亲子游客复购欲，驱动全家走完全程古建动线去搜寻售卖机盲盒补给。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_mythic_beast_boxes_1773659584706.png">
+        </div>
+    </div>
+
+    <!-- 2.4 抽签柜 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">趣味</div>
+            <div class="part">PART 2: 文旅产品体系</div>
+            <div class="title">无声的社交货币：<br>无人自助“良心柜”</div>
+            <div class="desc">
+                <p>在古貌财神庙边，彻底砍去聒噪扰人的推销人员，改用原木极简风的无人打扰抽签机柜。</p>
+                <p>内设精美的文创“水乡聚宝”香囊及好运签文。不仅强化了古村“淳朴、避世”的高级禅意磁场，这种极具东方意境的互动方式，更容易激发出游者的社交平台自发分享欲（天然种草素材）。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_fortune_cabinet_1773659553135.png">
+        </div>
+    </div>
+
+    <!-- ================= PART 3 导览 ================= -->
+    <div class="slide cover chapter-divider">
+        <div class="part" style="color: var(--gold); font-size: 32px; letter-spacing: 10px;">PART 3</div>
+        <div class="title"
+            style="color: var(--paper); font-size: 80px; border-color: var(--gold); margin-bottom: 60px;">自然动线落位与免维护网络
+        </div>
+        <div class="desc" style="color: #aaa; font-size: 30px; width: 85%; font-weight: 400; line-height: 1.8;">
+            此章节回答“如何极致控本落地”的基建之问。展现依靠极低干预的原生态设施与智能化售卖矩阵，构建一套免除庞大人力包袱、且随时可灵活撤离的基础运营系统。
+        </div>
+    </div>
+
+    <!-- 3.1 极简动线打卡柱 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">落位</div>
+            <div class="part">PART 3: 设施与空间布局</div>
+            <div class="title">零土建风险：<br>“无声向导”印章柱</div>
+            <div class="desc">
+                <p>立足现有的 3.9km 官方步道，坚持<strong>零大兴土木、不推倒一堵老墙</strong>的安全底线。</p>
+                <p>我们不设丑陋的收费闸机或醒目的铁质门牌。在每个重要古桥与门楼旁，设立带有浓厚中国明清视觉的<strong>原木免维护打卡印章柱</strong>。</p>
+                <p>以极致的克制打造出国际一流“历史朝圣道”该有的质感，让游伴靠寻木柱印章即可完成自持导览。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_stamp_pillar_1773659621532.png">
+        </div>
+    </div>
+
+    <!-- 3.2 极简发呆长椅 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">情绪</div>
+            <div class="part">PART 3: 设施与空间布局</div>
+            <div class="title">提供情绪滞留点的<br>“生态发呆长椅”</div>
+            <div class="desc">
+                <p>在百年古树旁、风景极佳的水岸线边上极简嵌入实木“发呆椅”。</p>
+                <p>这完美彰显了本提案对于财政核心力量的把控力——把有限的第一笔 10 万以内启动资金，<strong>像手术刀般精准用在视觉质感与核心“微度假呼吸体验”的刀刃上</strong>。</p>
+                <p>所有的木质长椅、设施均未深嵌地基，若遇抗洪等特殊事件，半天内随时可无痕撤出。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_daze_bench_1773659876877.png">
+        </div>
+    </div>
+
+    <!-- 3.3 智能运维售水网 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">智网</div>
+            <div class="part">PART 3: 运营闭环体系 (OPEX)</div>
+            <div class="title">青砖木纹伪装网：<br>极轻量级日常智能系统</div>
+            <div class="desc">
+                <p>文旅项目最大的天坑就是高昂的养人的人力折旧费。</p>
+                <p>方案将全村游线上的饮水补给及高毛利文创售卖，<strong>100% 交由 24 小时无人智能柜群网络承接</strong>。且所有终端采用复古青砖外立贴膜，完美伪装并隐入古村环境。</p>
+                <p>全村的运维用人极度克制：按时薪由本村就近留守长者完成简单的表面除灰与扫码补货即可，人力包袱无限趋近于零。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_vending_machine_1773659895318.png">
+        </div>
+    </div>
+
+    <!-- ================= PART 4 & 5 导览 ================= -->
+    <div class="slide cover chapter-divider">
+        <div class="part" style="color: var(--gold); font-size: 32px; letter-spacing: 10px;">PART 4 & 5</div>
+        <div class="title"
+            style="color: var(--paper); font-size: 80px; border-color: var(--gold); margin-bottom: 60px;">引流模型、财务沙盘与资产重估
+        </div>
+        <div class="desc" style="color: #aaa; font-size: 30px; width: 85%; font-weight: 400; line-height: 1.8;">
+            通过剖析顺德全域文旅双子星的流量借力系统，展现以“零营销硬广费”起盘的高级策略。同时，以严谨保守的数据沙盘，推演 100 天 MVP 验证机制、首期财政试盘底气、年化流水以及村集体闲置三资最终被盘活的长盛蓝图。
+        </div>
+    </div>
+
+    <!-- 4. 全域旅游生态协同 -->
+    <div class="slide full-text"
+        style="background-color: var(--dark-gray); color: var(--paper); border-left: 15px solid var(--accent-red);">
+        <div class="part" style="color: var(--accent-red);">PART 4: 零广告费客流导入模型</div>
+        <div class="title" style="color: var(--paper); border-color: var(--accent-red); margin-bottom: 30px;">
+            融入顺德文旅大盘：构建“双子星”生态互补</div>
+        <div class="desc" style="color: #ccc; max-width: 1500px;">
+            <p>古朗的发展切忌盲目投入数百万硬广费去外地市场竞争。我们的核心战略是“大湾区跨维度文旅互补”。以古朗天然的高级原生态静谧优势，<strong>完美成为逢简水乡超负荷运作时的“品质泄压阀”</strong>：
+            </p>
+            <ul class="data-list" style="color: #ccc; font-size: 24px; margin-top: 40px;">
+                <li><strong
+                        style="color: var(--paper);">数字导航（POI）生态链分流：</strong>重点运营高德、百度地图等基建终端。以“避峰、原生态、快速泊车”为定点词汇，精准截引长假期间逢简主入口溢出的自驾游客储备池。
+                </li>
+                <li><strong
+                        style="color: var(--paper);">头部民宿产业微型商会同盟（前后花园）：</strong>《手信图》直接下沉并低利让渡给成熟景区的高端民宿前台。直接解决大湾区过夜旅客“次日在何处寻得一片宁静之地”的共生难题。
+                </li>
+                <li><strong
+                        style="color: var(--paper);">线上情绪标签长尾种草：</strong>持续通过自建村民矩阵账号输出极具辨识度的“零强买强卖、无烤肠炸串”的反差古风视频，以强烈的情绪诱发一线城市核心白领前往释放压力。
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 5.1 财务账本 - 成本 -->
+    <div class="slide full-text"
+        style="background-color: var(--paper); color: var(--text-main); border-left: 15px solid var(--gold);">
+        <div class="part" style="color: var(--gold);">PART 5: 财务管控沙盘</div>
+        <div class="title" style="color: var(--text-main); border-color: var(--gold); margin-bottom: 20px;">
+            100天敏捷闭环试盘：前期开发成本与安全运维</div>
+
+        <div style="margin-top: 40px; width: 100%;">
+            <h3
+                style="color: var(--gold); font-size: 32px; border-bottom: 1px solid rgba(179, 139, 77, 0.3); padding-bottom: 15px; margin-top: 0;">
+                前期硬件投资结构（极小化风险口）</h3>
+            <div class="metrics-container"
+                style="flex-wrap: nowrap; margin-top: 40px; gap: 40px; justify-content: flex-start;">
+                <div class="metric-card" style="padding: 50px; flex: 1; max-width: 50%;">
+                    <div class="metric-label" style="font-size: 24px;">启动软硬件开发总投 (CAPEX)</div>
+                    <div class="metric-value" style="font-size: 60px; margin: 30px 0;">≤ 10 <span
+                            style="font-size: 30px;">万元</span></div>
+                    <div class="metric-sub" style="font-size: 22px; line-height: 1.6;">核心支出用于：木质打卡网络构建、自助售卖终端布点、文创手信与盲盒
+                        3D 开模的大宗打样首发。绝不存在烂尾楼类的不良资产。</div>
+                </div>
+                <div class="metric-card" style="padding: 50px; flex: 1; max-width: 50%;">
+                    <div class="metric-label" style="font-size: 24px;">月度硬性运营安全门槛 (OPEX)</div>
+                    <div class="metric-value" style="font-size: 60px; margin: 30px 0;">~ 7,000 <span
+                            style="font-size: 30px;">元/月</span></div>
+                    <div class="metric-sub" style="font-size: 22px; line-height: 1.6;">
+                        全盘运转完全无需背负国企级人力薪酬。依靠自动管理平台搭配属地兼职计件工，极大释放利润。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5.2 财务账本 - 营收 -->
+    <div class="slide full-text"
+        style="background-color: var(--paper); color: var(--text-main); border-left: 15px solid var(--accent-red);">
+        <div class="part" style="color: var(--accent-red);">PART 5: 投资回收推测</div>
+        <div class="title" style="color: var(--text-main); border-color: var(--accent-red); margin-bottom: 20px;">
+            确定的安全流水：基于溢出引流漏斗的保守营收账本</div>
+
+        <div style="margin-top: 40px; width: 100%;">
+            <p class="desc" style="color: var(--text-light); font-size: 30px; margin-top: 20px;">
+                参考周边区域同类项目破百万的年游客体量，仅依据承载其极小部分自然溢出的 <strong>50,000 人次/年</strong> 规模做极端保守模型测算：
+            </p>
+            <ul class="data-list" style="font-size: 26px; color: var(--text-main); margin-top: 60px;">
+                <li style="margin-bottom: 40px;">假设在 5 万自然人流中，仅依靠设计驱动达成 <strong>30% 核心转化率</strong>（即 1.5 万高净消费行为客户）</li>
+                <li style="margin-bottom: 40px;">按微度假配套平均 <strong>客群单人贡献 ¥50 元</strong> 的极低底线评估（仅相当于带走一本手册与微薄补给饮品）</li>
+                <li style="margin-bottom: 40px;"><strong style="font-size: 32px;">首年保底入集体公司流水预期：<br><span
+                            style="font-size: 70px; color: var(--accent-red); line-height: 1.6;">≥ 750,000
+                            元/年</span></strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 5.2 终局愿景：盘活闲置三资 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">重塑</div>
+            <div class="part">PART 5: 构建资产升维全景图</div>
+            <div class="title">以轻文旅作为矛锋<br>闲置“三资”招租作重底</div>
+            <div class="desc">
+                <p>前期铺设文创矩阵并快速回本并获得数十万级营收，这极其关键，但这仅是本案的<strong>第一阶段“数据与风貌测试模型 (MVP)”</strong>。</p>
+                <p>战略的深远内核在于：凭借前期营造的大湾区顶级“文化深厚、高净极简风”村落品牌，以及强有力的客流动线数据验证支撑。村两委即拥有了厚重的谈判筹码。</p>
+                <p>将村内原先杂草丛生的闲置公产、废弃老屋直接提档升级成为稀缺性商铺。强力引入外部资金改建为<strong>高奢静谧庭院私房菜馆与奢华避世民宿聚落</strong>。</p>
+                <p>实现由“短期吃小微门店差价分红”正式跨入“全村吃长治久安不动产百年升值红利”的发展巅峰。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_old_house_bnb_1773659929666.png">
+        </div>
+    </div>
+
+</body>
+
+</html>

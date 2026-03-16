@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>顺德古朗文旅方案 - 岭南水乡的“周末深呼吸”</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+
+        :root {
+            --gold: #b38b4d;
+            --dark-gray: #1b1b1b;
+            --paper: #f0ebe1;
+            --accent-red: #8c2a2a;
+            --text-main: #333333;
+            --text-light: #666666;
+        }
+
+        body {
+            margin: 0;
+            background-color: #2c2926;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 100px;
+            padding: 100px 0;
+            font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+        }
+
+        .slide {
+            width: 1920px;
+            height: 1080px;
+            background-color: var(--paper);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            color: var(--text-main);
+        }
+
+        /* Print Settings for seamless 16:9 PDF export */
+        @media print {
+            @page {
+                size: 1920px 1080px;
+                margin: 0;
+            }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+                gap: 0;
+                display: block;
+            }
+
+            .slide {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                break-after: page;
+                -webkit-region-break-inside: avoid;
+                border: none;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        /* Cover Slide */
+        .cover {
+            background-color: var(--dark-gray);
+            color: var(--paper);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            bottom: 50px;
+            left: 50px;
+            right: 50px;
+            border: 2px solid rgba(179, 139, 77, 0.3);
+            pointer-events: none;
+        }
+
+        .cover-title {
+            font-size: 110px;
+            font-weight: 900;
+            letter-spacing: 15px;
+            color: var(--gold);
+            margin-bottom: 40px;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .cover-subtitle {
+            font-size: 45px;
+            font-weight: 400;
+            letter-spacing: 8px;
+            color: #d0c8b8;
+            margin-bottom: 80px;
+        }
+
+        /* Split Layouts */
+        .split {
+            flex-direction: row;
+        }
+
+        .text-panel {
+            width: 50%;
+            padding: 90px 100px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .image-panel {
+            width: 50%;
+            height: 100%;
+            position: relative;
+            background-color: var(--dark-gray);
+        }
+
+        .image-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.95;
+        }
+
+        /* Full Text Layouts */
+        .full-text {
+            width: 100%;
+            padding: 100px 150px;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Typography */
+        .part {
+            font-size: 24px;
+            color: var(--accent-red);
+            letter-spacing: 6px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .title {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 30px;
+            color: #111;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 6px;
+            background-color: var(--gold);
+        }
+
+        .desc {
+            font-size: 28px;
+            line-height: 1.7;
+            color: var(--text-main);
+        }
+
+        .desc p {
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+
+        .desc strong {
+            color: var(--accent-red);
+            font-weight: 900;
+        }
+
+        /* Lists */
+        .data-list {
+            margin-top: 30px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .data-list li {
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .data-list li::before {
+            content: '■';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 20px;
+            top: 2px;
+        }
+
+        /* Metric Cards */
+        .metrics-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+            width: 100%;
+        }
+
+        .metric-card {
+            background: rgba(179, 139, 77, 0.1);
+            border: 1px solid rgba(179, 139, 77, 0.3);
+            padding: 30px;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .metric-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--accent-red);
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 20px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .metric-sub {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        .watermark {
+            position: absolute;
+            right: -50px;
+            bottom: -50px;
+            font-size: 250px;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.03);
+            pointer-events: none;
+            letter-spacing: 20px;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. 封面 -->
+    <div class="slide cover">
+        <div class="cover-title">岭南水乡的“周末深呼吸”</div>
+        <div class="cover-subtitle">顺德古朗村“微度假·轻徒步”及“三资”盘活策划案</div>
+        <div
+            style="font-size: 22px; color: var(--gold); margin-top: 80px; border: 1px solid var(--gold); padding: 12px 40px; letter-spacing: 6px;">
+            面向村镇/专项资金申报审批版</div>
+    </div>
+
+    <!-- 2. 破局之道：避世属性 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">破局</div>
+            <div class="part">PART 1: 破局之道</div>
+            <div class="title">只做静居，不做闹市<br>重塑古朗百年护城河</div>
+            <div class="desc">
+                <p>我们首先要面对一个客观物理制约：古朗村路网弯绕、停车承载力有限。<strong>如果盲目复刻逢简水乡的“大腹地、宽街道、大商业”模式，必将引发交通瘫痪与原住民的强烈反对</strong>。</p>
+                <p>古朗真正的底牌，是全顺德绝无仅有的“皇家福气”（皇帝御赐百岁坊、节孝坊）与 15
+                    座保存完好的明清宗祠。这里自带一种极其稀缺的<strong>“原生态幽静”</strong>与<strong>“岁月沉淀的长寿福气”</strong>。</p>
+                <p>逢简赚的是年轻客流的快钱，古朗要赚的，是“珠三角周边家庭”避开人潮、度过静谧周末的<strong>“慢钱”</strong>。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_quiet_water_town_1773659823121.png">
+        </div>
+    </div>
+
+    <!-- 3. 客群画像与天时 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">画像</div>
+            <div class="part">PART 1: 天时地利</div>
+            <div class="title">锚定“高净值家庭”<br>匹配政府核心 KPI</div>
+            <div class="desc">
+                <p>我们的核心反向消费洞察：当下都市中产正经历严重的“特种兵旅游”与“商业古镇”审美疲劳。越是无商业叫卖的“野生古村”，越能提供<strong>周末情绪价值</strong>。</p>
+                <p>更重要的是，本提案精准踩中广东省<strong>“百千万工程”</strong>四大核心考核要求：</p>
+                <ul class="data-list" style="font-size: 24px;">
+                    <li><strong>新型农村集体增收：</strong>通过强村公司直营文创，获取高毛利。</li>
+                    <li><strong>人居环境微改造：</strong>拒绝大兴土木，用极简生态设施提升村貌。</li>
+                    <li><strong>联农带农家门口就业：</strong>属地化雇佣本村长者进行轻量级运维。</li>
+                    <li><strong>盘活闲置“三资”：</strong>以极轻资产测试跑通流量后，招商盘活闲置古宅。</li>
+                </ul>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_target_audience_1773659840653.png">
+        </div>
+    </div>
+
+    <!-- 4. 生意引擎：游手信 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">手信</div>
+            <div class="part">PART 2: 生意引擎与产品线</div>
+            <div class="title">体验放大器：<br>《古朗村志游手信》</div>
+            <div class="desc">
+                <p>在“轻徒步”的调性下，我们绝不售卖强制门票。收益的第一落点，是一份<strong>“买给小孩玩、带回家做手账”的文化载体</strong>。</p>
+                <p>地图不仅用于指路，更是串联全村 3.9km 散步动线的“盖章寻宝指南”（基础版 39.9元 / 家庭祈福包 88元）。通过盖齐代表各宗祠古桥的印章，解决游客（特别是儿童）“觉得纯散步无聊”的核心痛点。
+                </p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_handdrawn_map_1773659492710.png">
+        </div>
+    </div>
+
+    <!-- 5. 生意引擎：皇家祈福牌 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">祈福</div>
+            <div class="part">PART 2: 生意引擎与产品线</div>
+            <div class="title">长者情绪价值：<br>“御赐长庚”祈福牌</div>
+            <div class="desc">
+                <p>充分变现“百岁坊”与“皇帝御赐牌匾”的不可复制资源。</p>
+                <p>为追求“好意头”的广东家庭提供满分情绪价值。老人在古树下买一块红底金字的特制木牌，挂在牌坊边的专属祈福柱上。这不是普通的迷信，而是基于真实历史传承的<strong>高级文化祈福体验</strong>。
+                </p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_blessing_tags_1773659523289.png">
+        </div>
+    </div>
+
+    <!-- 6. 生意引擎：盲盒 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">盲盒</div>
+            <div class="part">PART 2: 生意引擎与产品线</div>
+            <div class="title">高复购大杀器：<br>宗祠瑞兽 Q 版盲盒</div>
+            <div class="desc">
+                <p>古村的文化提取绝不能停留在枯燥的生硬科普。</p>
+                <p>我们将古朗漱南伍公祠精美的“屋脊灰雕瑞兽”、“明代石狮”等真实元素，转化为年轻人喜闻乐见的 <strong>国潮 Q 版图鉴盲盒</strong>。</p>
+                <p>售价 29.9 元/个，极高的毛利率，且促使亲子家庭在徒步动线上沿途寻找无人售卖机“补齐隐藏款”。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_mythic_beast_boxes_1773659584706.png">
+        </div>
+    </div>
+
+    <!-- 7. 基建与运营：打卡柱与长椅 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">动线</div>
+            <div class="part">PART 3: 极轻基建与动线落地</div>
+            <div class="title">自然前置的<br>低干预“无声向导”</div>
+            <div class="desc">
+                <p>利用现有的 3.9km 官方绿道，<strong>彻底零基建风险，不推倒一堵老墙</strong>：</p>
+                <ul class="data-list">
+                    <li><strong>原木印章打卡柱：</strong>在每个古桥/宗祠口，立一根融入明清风貌的木柱。成本极低，格调拉满（对标日本熊野古道）。</li>
+                    <li><strong>生态发呆长椅：</strong>在水涌古树边，嵌入极简实木长椅。给游客提供坐看鸭子戏水的“微度假滞留点”。所有设施测试失败随时可无痛撤离。</li>
+                </ul>
+            </div>
+        </div>
+        <div class="image-panel" style="display: flex; flex-direction: column;">
+            <img style="height: 50%;"
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_stamp_pillar_1773659621532.png">
+            <img style="height: 50%;"
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_daze_bench_1773659876877.png">
+        </div>
+    </div>
+
+    <!-- 8. 基建与运营：无人柜与抽签 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">运维</div>
+            <div class="part">PART 3: 极轻基建与日常运维 (OPEX)</div>
+            <div class="title">青砖伪装智能网<br>把绝大多数利润留给村委</div>
+            <div class="desc">
+                <p>拒绝雇佣庞大的景区服务团队拖垮财政。我们依靠<strong>“复古贴膜无人自助柜”</strong>网络完成 90% 的散步补给（水）与文创销售。</p>
+                <p>在财神庙角落地设置木质“良心抽签柜”，提供盲签抽好运服务。</p>
+                <p><strong>谁出钱谁管事：</strong>所有无人终端的日常补货与擦拭，每月提供极低成本（预算约 7000 元/月）雇佣本村长者兼职管理，实现“无重资产包袱”的安全运营。</p>
+            </div>
+        </div>
+        <div class="image-panel" style="display: flex; flex-direction: column;">
+            <img style="height: 50%;"
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_vending_machine_1773659895318.png">
+            <img style="height: 50%;"
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_fortune_cabinet_1773659553135.png">
+        </div>
+    </div>
+
+    <!-- 9. 传播与财务算账 -->
+    <div class="slide full-text"
+        style="background-color: var(--dark-gray); color: var(--paper); border-left: 15px solid var(--gold);">
+        <div class="part" style="color: var(--gold);">传播截流与 MVP 算账模型</div>
+        <div class="title" style="color: var(--paper); border-color: var(--gold); margin-bottom: 20px;">
+            争做逢简水乡的“泄压阀”<br>10万元撬动75万保底流水</div>
+
+        <div style="display: flex; gap: 60px; margin-top: 40px;">
+            <div style="flex: 1;">
+                <h3
+                    style="color: var(--gold); font-size: 32px; border-bottom: 1px solid rgba(179, 139, 77, 0.3); padding-bottom: 15px;">
+                    全域生态互补传播 (0广告费)</h3>
+                <p class="desc" style="color: #ccc; font-size: 24px;">不硬刚逢简，只吃逢简每年百万级客流溢出的“怕拥挤人群”：</p>
+                <ul class="data-list" style="color: #ccc; font-size: 22px;">
+                    <li><strong>地图软件 POI 拦截：</strong>在所有地标评价中植入“距逢简10分钟的避世平替”。</li>
+                    <li><strong>民宿吧台前置分销：</strong>手信低价铺货给逢简民宿，打造“住逢简，散步祈福在古朗”的异业微循环。</li>
+                    <li><strong>平台长尾种草：</strong>强打“0商业化”、“绝不卖烤肠”的反差人设标签。</li>
+                </ul>
+            </div>
+
+            <div style="flex: 1;">
+                <h3
+                    style="color: var(--accent-red); font-size: 32px; border-bottom: 1px solid rgba(140, 42, 42, 0.3); padding-bottom: 15px;">
+                    100天第一期测试账本 (MVP)</h3>
+                <div class="metrics-container" style="flex-wrap: wrap;">
+                    <div class="metric-card" style="min-width: 40%;">
+                        <div class="metric-label">前期硬通货投入（上限）</div>
+                        <div class="metric-value">≤ 10 w</div>
+                        <div class="metric-sub">开模/印刷/无人机柜/打卡柱</div>
+                    </div>
+                    <div class="metric-card" style="min-width: 40%;">
+                        <div class="metric-label">盈亏平衡安全线 (OPEX)</div>
+                        <div class="metric-value">~ 7 k /月</div>
+                        <div class="metric-sub">全村极简兼职人工及水电</div>
+                    </div>
+                </div>
+                <p class="desc" style="color: #ccc; font-size: 22px; margin-top: 20px;">
+                    <strong>保守截流效益：</strong>仅需截流逢简 5% 客群 (5万人/年)，按极保守的 30% 转化率及家庭客单价 50 元计算，<strong>首年保底文创流水即达 75
+                        万元</strong>。高毛利迅速覆盖 10 万初始造价。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. 终局愿景 -->
+    <div class="slide split">
+        <div class="text-panel">
+            <div class="watermark">愿景</div>
+            <div class="part">PART 5: 战略终局</div>
+            <div class="title">从“花小钱布生态”<br>到“沉睡三资盘活”</div>
+            <div class="desc">
+                <p>我们花这十万块钱的根本目的，绝不只是卖盲盒赚差价，而是为了<strong>“调风水、打标签”</strong>。</p>
+                <p>当古朗被牢牢贴上“大湾区极少数高端静谧原生态水乡”的标签，并有了稳定的优质家庭客流后。镇政府与村委就可以拿着这份成绩单去定向招商引资。</p>
+                <p>届时，村内大量破败闲置的公有老屋，将不再是无人问津的负资产，而会被高端资本抢先租下，<strong>爆改为寸土寸金的高奢禅意民宿与私房菜</strong>。这才是为乡村长远兜底的重资产估值重塑。</p>
+            </div>
+        </div>
+        <div class="image-panel">
+            <img
+                src="C:\Users\USER\.gemini\antigravity\brain\413c0692-7c8c-4be0-8e35-77124a9e4a7b\lingnan_old_house_bnb_1773659929666.png">
+        </div>
+    </div>
+
+</body>
+
+</html>
