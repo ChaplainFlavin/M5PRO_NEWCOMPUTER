@@ -1,0 +1,33 @@
+{
+  "autoApprove": true,
+  "requireApproval": false,
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(powershell.exe:*)",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(bash:*)",
+      "Bash(sh:*)",
+      "Bash(git-bash:*)",
+      "Bash(git-bash.exe:*)",
+      "Bash(*)"
+    ]
+  },
+  "bash": {
+    "preferredShell": "powershell.exe",
+    "disableGitBash": true,
+    "useWindowsShell": true
+  },
+  "shell": {
+    "type": "powershell",
+    "executable": "powershell.exe",
+    "args": [
+      "-NoProfile",
+      "-NonInteractive",
+      "-WindowStyle",
+      "Hidden"
+    ]
+  }
+}

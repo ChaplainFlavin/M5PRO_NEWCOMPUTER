@@ -32,6 +32,14 @@ $dirsToCopy = @(
         Target = Join-Path $quickOpenRoot "agent"
     },
     @{
+        Source = Join-Path $repoRoot "agents"
+        Target = Join-Path $quickOpenRoot "agents"
+    },
+    @{
+        Source = Join-Path $repoRoot "claude"
+        Target = Join-Path $quickOpenRoot "claude"
+    },
+    @{
         Source = Join-Path $repoRoot "prompts\mv-jimeng-seedance"
         Target = Join-Path $quickOpenRoot "prompts\mv-jimeng-seedance"
     },
@@ -40,8 +48,8 @@ $dirsToCopy = @(
         Target = Join-Path $quickOpenRoot "prompts\wure-mv"
     },
     @{
-        Source = Join-Path $repoRoot "memory\active"
-        Target = Join-Path $quickOpenRoot "memory\active"
+        Source = Join-Path $repoRoot "memory"
+        Target = Join-Path $quickOpenRoot "memory"
     }
 )
 
@@ -88,10 +96,12 @@ $lines = @(
     '## Agent System Files',
     '',
     '- `agent/`',
+    '- `agents/`',
+    '- `claude/`',
     '',
     '## Active Memory',
     '',
-    '- `memory/active/`'
+    '- `memory/`'
 )
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllLines($indexPath, $lines, $utf8NoBom)

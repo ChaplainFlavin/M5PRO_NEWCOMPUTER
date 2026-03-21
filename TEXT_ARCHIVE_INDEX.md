@@ -70,12 +70,16 @@ Contents:
 Location:
 
 - `agent/`
+- `agents/`
+- `claude/`
 - `skills/`
 - `workflows/`
 
 Contents:
 
 - agent rules and context files from `.agent/`
+- sub-agent skills and workflow mirrors from `.agents/`
+- backed-up Claude local settings and checkpoints from `.claude/`
 - active custom skills from `.claude/skills/`
 - workflow docs from `.agents/workflows/`
 
